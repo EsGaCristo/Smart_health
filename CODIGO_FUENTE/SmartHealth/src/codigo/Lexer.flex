@@ -1,21 +1,26 @@
-package codigo;
-
 import compilerTools.Token;
+
 %%
 %class Lexer
 %type Token
 %line
 %column
-L=[A-Za-zÑñ_ÁÉÍÓÚáéíóú]+
-D=[0-9]+
-espacio=[ \t\r]+
+
+
+
 %{
     public Token token(String lexema, String tipo, int linea, int columna){
         return new Token(lexema, tipo, linea+1, columna+1);
     }
-%}
-%%
+%} 
 
+/*Identificador*/
+
+L=[A-Za-zÑñ_ÁÉÍÓÚáéíóú]+
+D=[0-9]+
+espacio=[ \t\r]+
+
+%%
 /* Espacios en blanco */
 {espacio} {/*Ignore*/}
 
@@ -144,7 +149,7 @@ As  {return token(yytext(), "As", yyline, yycolumn);}
 ("(-"{D}+")")|{D}+ {return token(yytext(), "Numero", yyline, yycolumn);}
 
 /* Numero Decimal */
-("(-"{D}+\.{D}+")")|{D}+\.{D}+ {return token(yytext(), "Numero_Decimal", yyline, yycolumn);}
+("(-"{D}+\.{D}+"W)")|{D}+\.{D}+ {return token(yytext(), "Numero_Decimal", yyline, yycolumn);}
 
 /* Error Identificador */
 {D}+{L}+ {return token(yytext(), "ERROR_1", yyline, yycolumn);}
@@ -160,3 +165,4 @@ As  {return token(yytext(), "As", yyline, yycolumn);}
 
 /* Error de analisis */
  . {return token(yytext(), "ERROR_3", yyline, yycolumn);}
+

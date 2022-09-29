@@ -1,7 +1,6 @@
-package codigo;
-
 import compilerTools.TextColor;
 import java.awt.Color;
+
 %%
 %class LexerColor
 %type TextColor
@@ -11,9 +10,13 @@ import java.awt.Color;
         return new TextColor((int) start, size, color);
     }
 %}
+
+
+
 L=[A-Za-zÑñ_ÁÉÍÓÚáéíóú]+
 D=[0-9]+
 espacio=[ \t\r]+
+
 %%
 
 /* Espacios en blanco */
@@ -36,7 +39,7 @@ while | for  {return textColor(yychar, yylength(), Color.PINK);}
 
 
 /* Operador Igual */
-( "=" ) {return textColor(yychar, yylength(), Color.decode("#9400D3"));}
+= {return textColor(yychar, yylength(), Color.decode("#9400D3"));}
 
 /* Operadores Aritmeticos */
 ( "+" | "-" | "*" | "/" ) {return textColor(yychar, yylength(), Color.decode("#9400D3"));}

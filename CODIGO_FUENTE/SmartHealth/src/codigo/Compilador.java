@@ -354,12 +354,13 @@ public class Compilador extends javax.swing.JFrame {
         //Aqui empezamos con las producciones
         
         /*agrupacion de valores*/
-        gramatica.group("VALOR","(Numero | Numero_Decimal | identificador)",true);
-        gramatica.group("TIPO_DATO","(Int | Char | Float | Logic)" , true);
         
+        gramatica.group("VALOR", "( Numero | Numero_Decimal | identificador)",true);
+        gramatica.group("TIPO_DATO", "( Int | Float | Logic)",true);
         
-        gramatica.group("VARIABLE","identificador Int Asignacion Numero",true);
-        gramatica.group("VARIABLE","identificador Int Asignacion",true,4,"ayudaaaa");
+        // Agrupacion de asignacion de variables
+        gramatica.group("VARIABLE","identificador Declare As TIPO_DATO Asignacion VALOR Punto_Coma",true);
+        gramatica.group("VARIABLE","identificador Declare As TIPO_DATO Asignacion VALOR ",true,4,"ERROR DE SINTAXIS");
         
         /**/
         

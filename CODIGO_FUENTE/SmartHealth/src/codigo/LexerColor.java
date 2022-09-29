@@ -7,6 +7,7 @@ package codigo;
 import compilerTools.TextColor;
 import java.awt.Color;
 
+
 // See https://github.com/jflex-de/jflex/issues/222
 @SuppressWarnings("FallThrough")
 class LexerColor {
