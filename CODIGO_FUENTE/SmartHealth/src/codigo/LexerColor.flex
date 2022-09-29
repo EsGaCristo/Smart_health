@@ -87,7 +87,7 @@ while | for  {return textColor(yychar, yylength(), Color.PINK);}
 ("(-"{D}+\.{D}+")")|{D}+\.{D}+ {return textColor(yychar, yylength(), Color.blue);}
 
 /* Error Identificador */
-{D}+{L}+ {return textColor(yychar, yylength(), Color.red);}
+{D}+{L}+ {/*return textColor(yychar, yylength(), Color.red);*/}
 
 /* Texto */
 \".*\" {return textColor(yychar, yylength(), Color.decode("#2ECCFA"));}
@@ -96,7 +96,7 @@ while | for  {return textColor(yychar, yylength(), Color.PINK);}
 \'.\' {return textColor(yychar, yylength(), Color.decode("#2ECCFA"));}
 
 /* Error caracter */
-\'.+\' {return textColor(yychar, yylength(), Color.red);}
+\'.+\' {/*return textColor(yychar, yylength(), Color.red);*/}
 
 /* Error de analisis */
- . {return textColor(yychar, yylength(), Color.red);}
+ . {/*return textColor(yychar, yylength(), Color.red);*/}

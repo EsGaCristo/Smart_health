@@ -4,6 +4,8 @@
  */
 package codigo;
 
+import compilerTools.Token;
+
 /**
  *
  * @author juanj
@@ -21,7 +23,10 @@ public class Gramaticas {
 
     public int evaluar(int cont) throws Exception {
         if (!Sintax.reglas.containsKey(1)) {
-            Sintax.reglas.put(1, "GRAMATICAS->INCDEC | identificador Declare DECLARACION | identificador Asignacion ASIGNACION | identificador Op_Atribucion OP_ATRIBUCION | Condition CONDITION | Ventilate VENTILATE | admit ADMIT | EmptyRoom EMPTY_ROOM | Dispense DISPENSE | Distance DISTANCE | DeviceControl DEVICE_CONTROL | DriverLights DRIVER_LIGHTS | OpenDoor OPEN_DOOR | RegisterA REGISTER_A  | WHILE | FOR | EXIT");
+            Sintax.reglas.put(1, "GRAMATICAS->INCDEC | identificador Declare DECLARACION | identificador Asignacion ASIGNACION "
+                    + "| identificador Op_Atribucion OP_ATRIBUCION | Condition CONDITION | Ventilate VENTILATE | admit ADMIT | "
+                    + "EmptyRoom EMPTY_ROOM | Dispense DISPENSE | Distance DISTANCE | DeviceControl DEVICE_CONTROL | DriverLights DRIVER_LIGHTS |"
+                    + " OpenDoor OPEN_DOOR | RegisterA REGISTER_A  | WHILE | FOR | EXIT");
         }
         switch (tokens.get(cont++).tipo) {
             case "Punto_Coma", "Llave_c" -> {
@@ -37,7 +42,8 @@ public class Gramaticas {
                         Sintax.gramas.put(++gramaticas, " INCDEC::= Op_Incremento identificador Punto_Coma");
                         return ++cont;
                     } else {
-                        FrmPrincipal.errores.add("ERROR SINTACTICO: Se esperaba ( ; ) en el lexema ( " + tokens.get(cont).lexema + " ) en la posicion " + tokens.get(cont).linea + ", " + tokens.get(cont).columna);
+                        FrmPrincipal.errores.add("ERROR SINTACTICO: Se esperaba ( ; ) en el lexema ( " + tokens.get(cont).lexema 
+                                + " ) en la posicion " + tokens.get(cont).linea + ", " + tokens.get(cont).columna);
                         //FrmPrincipal.txtGramaticas.setText(FrmPrincipal.txtGramaticas.getText() + "\n" + ++gramaticas + " INCDEC::= Op_Incremento identificador ERROR");
                         Sintax.gramas.put(++gramaticas, " INCDEC::= Op_Incremento identificador ERROR");
                         return cont;
@@ -48,7 +54,9 @@ public class Gramaticas {
                 switch (tokens.get(cont++).tipo) {
                     case "Declare" -> {
                         if (!Sintax.reglas.containsKey(3)) {
-                            Sintax.reglas.put(3, "DECLARACION->identificador Declare As TIPO_DATO Punto_Coma | identificador Declare As TIPO_DATO Punto_Coma Asignacion CAMPO_TEXTO Punto_Coma | identificador Declare As TIPO_DATO Punto_Coma Asignacion OP_ARITMETICA Punto_Coma");
+                            Sintax.reglas.put(3, "DECLARACION->identificador Declare As TIPO_DATO Punto_Coma | "
+                                    + "identificador Declare As TIPO_DATO Punto_Coma Asignacion CAMPO_TEXTO Punto_Coma | "
+                                    + "identificador Declare As TIPO_DATO Punto_Coma Asignacion OP_ARITMETICA Punto_Coma");
                         }
                         return declaracion(cont);
                     }
@@ -73,7 +81,8 @@ public class Gramaticas {
                             Sintax.gramas.put(++gramaticas, " INCDEC::= Op_Incremento identificador Punto_Coma");
                             return ++cont;
                         } else {
-                            FrmPrincipal.errores.add("ERROR SINTACTICO: Se esperaba ( ; ) en el lexema ( " + tokens.get(cont).lexema + " ) en la posicion " + tokens.get(cont).linea + ", " + tokens.get(cont).columna);
+                            FrmPrincipal.errores.add("ERROR SINTACTICO: Se esperaba ( ; ) en el lexema ( " + tokens.get(cont).lexema + 
+                                    " ) en la posicion " + tokens.get(cont).linea + ", " + tokens.get(cont).columna);
                             //FrmPrincipal.txtGramaticas.setText(FrmPrincipal.txtGramaticas.getText() + "\n" + ++gramaticas + " INCDEC::= identificador Op_Incremento Punto_Coma");
                             Sintax.gramas.put(++gramaticas, " INCDEC::= Op_Incremento identificador ERROR");
                             return ++cont;
@@ -81,7 +90,8 @@ public class Gramaticas {
 
                     }
                     default -> {
-                        FrmPrincipal.errores.add("ERROR SINTACTICO: Se esperaba ( =, [++, --], [+=, *=, /= -=], Declare  ) en el lexema ( " + tokens.get(cont).lexema + " ) en la posicion " + tokens.get(cont).linea + ", " + tokens.get(cont).columna);
+                        FrmPrincipal.errores.add("ERROR SINTACTICO: Se esperaba ( =, [++, --], [+=, *=, /= -=], Declare  ) en el lexema ( " 
+                                + tokens.get(cont).lexema + " ) en la posicion " + tokens.get(cont).linea + ", " + tokens.get(cont).columna);
                         //FrmPrincipal.txtGramaticas.setText(FrmPrincipal.txtGramaticas.getText() + "\n" + "NO SE HA PODIDO DEFINIR UNA GRAMATICA");
                         Sintax.gramas.put(++gramaticas, "NO SE HA PODIDO DEFINIR UNA GRAMATICA");
                         return cont;
@@ -96,7 +106,8 @@ public class Gramaticas {
             }
             case "Ventilate" -> {
                 if (!Sintax.reglas.containsKey(7)) {
-                    Sintax.reglas.put(7, "VENTILATE->Ventilate Parentesis_a OP_ARITMETICA Coma SENTENCIA_BOOLEANA Coma SENTENCIA_BOOLEANA Coma SENTENCIA_BOOLEANA Parentesis_c Punto_Coma");
+                    Sintax.reglas.put(7, "VENTILATE->Ventilate Parentesis_a OP_ARITMETICA Coma SENTENCIA_BOOLEANA "
+                            + "Coma SENTENCIA_BOOLEANA Coma SENTENCIA_BOOLEANA Parentesis_c Punto_Coma");
                 }
                 return ventilate(cont);
             }
@@ -108,13 +119,15 @@ public class Gramaticas {
             }
             case "EmptyRoom" -> {
                 if (!Sintax.reglas.containsKey(9)) {
-                    Sintax.reglas.put(9, "EMPTY_ROOM->EmptyRoom Parentesis_a SENTENCIA_BOOLEANA Coma OP_ARITMETICA Coma SENTENCIA_BOOLEANA Coma SENTENCIA_BOOLEANA Parentesis_c Punto_Coma");
+                    Sintax.reglas.put(9, "EMPTY_ROOM->EmptyRoom Parentesis_a SENTENCIA_BOOLEANA Coma OP_ARITMETICA Coma SENTENCIA_BOOLEANA "
+                            + "Coma SENTENCIA_BOOLEANA Parentesis_c Punto_Coma");
                 }
                 return emptyRoom(cont);
             }
             case "Dispense" -> {
                 if (!Sintax.reglas.containsKey(10)) {
-                    Sintax.reglas.put(10, "DISPENSE->Dispense Parentesis_a SENTENCIA_BOOLEANA Coma OP_ARITMETICA Coma SENTENCIA_BOOLEANA Parentesis_c Punto_Coma");
+                    Sintax.reglas.put(10, "DISPENSE->Dispense Parentesis_a SENTENCIA_BOOLEANA Coma OP_ARITMETICA Coma SENTENCIA_BOOLEANA "
+                            + "Parentesis_c Punto_Coma");
                 }
                 return dispense(cont);
             }
@@ -156,7 +169,9 @@ public class Gramaticas {
             }
             case "For" -> {
                 if (!Sintax.reglas.containsKey(17)) {
-                    Sintax.reglas.put(17, "FOR->For Parentesis_a DECLARACION Punto_Coma SENTENCIA_BOOLEANA Punto_Coma OP_ATRIBUCION Parentesis_c Llave_a GRAMATICAS Llave_c | For Parentesis_a ASIGNACION Punto_Coma SENTENCIA_BOOLEANA Punto_Coma INCDEC Parentesis_c Llave_a GRAMATICAS Llave_c");
+                    Sintax.reglas.put(17, "FOR->For Parentesis_a DECLARACION Punto_Coma SENTENCIA_BOOLEANA Punto_Coma OP_ATRIBUCION "
+                            + "Parentesis_c Llave_a GRAMATICAS Llave_c | For Parentesis_a ASIGNACION Punto_Coma SENTENCIA_BOOLEANA Punto_Coma "
+                            + "INCDEC Parentesis_c Llave_a GRAMATICAS Llave_c");
                 }
                 return For(cont);
             }
@@ -172,7 +187,8 @@ public class Gramaticas {
                     return cont;
                 } else {
                     regla += "ERROR";
-                    FrmPrincipal.errores.add("ERROR SINTACTICO: Se esperaba ( ; ) en el lexema ( " + tokens.get(cont).lexema + " ) en la posicion " + tokens.get(cont).linea + ", " + tokens.get(cont).columna);
+                    FrmPrincipal.errores.add("ERROR SINTACTICO: Se esperaba ( ; ) en el lexema ( " + tokens.get(cont).lexema + " ) en la posicion " 
+                            + tokens.get(cont).linea + ", " + tokens.get(cont).columna);
                     //FrmPrincipal.txtGramaticas.setText(FrmPrincipal.txtGramaticas.getText() + "\n" + regla);
                     Sintax.gramas.put(++gramaticas, regla);
                     return cont;
@@ -201,7 +217,8 @@ public class Gramaticas {
             return cont;
         } else {
             regla += "ERROR";
-            FrmPrincipal.errores.add("ERROR SINTACTICO: Se esperaba ( ; ) en el lexema ( " + tokens.get(cont).lexema + " ) en la posicion " + tokens.get(cont).linea + ", " + tokens.get(cont).columna);
+            FrmPrincipal.errores.add("ERROR SINTACTICO: Se esperaba ( ; ) en el lexema ( " + tokens.get(cont).lexema + " ) en la posicion " 
+                    + tokens.get(cont).linea + ", " + tokens.get(cont).columna);
             Sintax.gramas.put(n, regla);
             return cont;
         }
@@ -268,14 +285,16 @@ public class Gramaticas {
         } else {
             regla += "ERROR";
             Sintax.gramas.put(n, regla);
-            FrmPrincipal.errores.add("ERROR SINTACTICO: Se esperaba ( ; ) en el lexema ( " + tokens.get(cont).lexema + " ) en la posicion " + tokens.get(cont).linea + ", " + tokens.get(cont).columna);
+            FrmPrincipal.errores.add("ERROR SINTACTICO: Se esperaba ( ; ) en el lexema ( " + tokens.get(cont).lexema + " ) en la posicion " 
+                    + tokens.get(cont).linea + ", " + tokens.get(cont).columna);
             return cont;
         }
     }
 
     private int opAritmetica(int cont) throws Exception {
         if (!Sintax.reglas.containsKey(19)) {
-            Sintax.reglas.put(19, "OP_ARITMETICA->Parentesis_a OP_ARITMETICA Parentesis_c | Parentesis_a OP_ARITMETICA Parentesis_c Aritmetico OP_ARITMETICA |  CAMPO_DEC Aritmetico OP_ARITMETICA | CAMPO_DEC");
+            Sintax.reglas.put(19, "OP_ARITMETICA->Parentesis_a OP_ARITMETICA Parentesis_c | Parentesis_a OP_ARITMETICA Parentesis_c "
+                    + "Aritmetico OP_ARITMETICA |  CAMPO_DEC Aritmetico OP_ARITMETICA | CAMPO_DEC");
         }
         regla = "OP_ARITMETICA::= ";
         int n = ++gramaticas;
@@ -297,7 +316,8 @@ public class Gramaticas {
                 regla += "ERROR";
                 //FrmPrincipal.txtGramaticas.setText(FrmPrincipal.txtGramaticas.getText() + "\n" + regla);
                 Sintax.gramas.put(n, regla);
-                FrmPrincipal.errores.add("ERROR SINTACTICO: Se esperaba ( ) ) en el lexema ( " + tokens.get(cont).lexema + " ) en la posicion " + tokens.get(cont).linea + ", " + tokens.get(cont).columna);
+                FrmPrincipal.errores.add("ERROR SINTACTICO: Se esperaba ( ) ) en el lexema ( " + tokens.get(cont).lexema + " ) en la posicion " 
+                        + tokens.get(cont).linea + ", " + tokens.get(cont).columna);
                 return cont;
             }
         }
@@ -633,6 +653,14 @@ public class Gramaticas {
         }
     }
 
+    /**
+     * 
+     * 
+     * FUNCIONES PROPIAS DEL LENGUAJE
+     * 
+     * 
+     **/
+    
     private int graElse(int cont) throws Exception {
         if (!Sintax.reglas.containsKey(22)) {
             Sintax.reglas.put(22, "ELSE->Else CONDITION | Else Llave_a GRAMATICAS Llave_c");

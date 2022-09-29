@@ -598,6 +598,10 @@ public class FrmPrincipal extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    //analisis semantico
+    private void semantico() throws IOException{
+        System.out.println(tokens);
+    }
     //<editor-fold defaultstate="collapsed" desc=" analizadorLexico ">
     private void analizarLexico() throws IOException {
         int cont = 1;
@@ -619,6 +623,7 @@ public class FrmPrincipal extends javax.swing.JFrame {
             ((DefaultTableModel) tablaDinamica.getModel()).addRow(new Object[]{t.tipo, t.lexema, t.linea, t.columna});
         }
         txtTokens.setText(resultado);
+        // Aqui llamada al analisis semantico
     }
     //</editor-fold>
 
@@ -853,6 +858,11 @@ public class FrmPrincipal extends javax.swing.JFrame {
         if (errores.isEmpty()) {
             txtError.setText("Analisis realizado correctamente");
             txtError.setForeground(new Color(25, 111, 61));
+            try {
+                semantico();
+            } catch (IOException ex) {
+                return;
+            }
         } else {
             txtError.setForeground(Color.red);
             for (String st : errores) {
@@ -1235,4 +1245,6 @@ public class FrmPrincipal extends javax.swing.JFrame {
     public static javax.swing.JTextPane txtGramaticas;
     private javax.swing.JTextArea txtTokens;
     // End of variables declaration//GEN-END:variables
+
+
 }

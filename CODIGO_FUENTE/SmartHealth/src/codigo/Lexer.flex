@@ -1,6 +1,6 @@
 package codigo;
 
-import codigo.Token;
+import compilerTools.Token;
 %%
 %class Lexer
 %type Token
@@ -147,7 +147,7 @@ As  {return token(yytext(), "As", yyline, yycolumn);}
 ("(-"{D}+\.{D}+")")|{D}+\.{D}+ {return token(yytext(), "Numero_Decimal", yyline, yycolumn);}
 
 /* Error Identificador */
-{D}+{L}+ {return token(yytext(), "ERROR", yyline, yycolumn);}
+{D}+{L}+ {return token(yytext(), "ERROR_1", yyline, yycolumn);}
 
 /* Texto */
 \".*\" {return token(yytext(), "Texto", yyline, yycolumn);}
@@ -156,7 +156,7 @@ As  {return token(yytext(), "As", yyline, yycolumn);}
 \'.\' {return token(yytext(), "Caracter", yyline, yycolumn);}
 
 /* Error caracter */
-\'.+\' {return token(yytext(), "ERROR", yyline, yycolumn);}
+\'.+\' {return token(yytext(), "ERROR_2", yyline, yycolumn);}
 
 /* Error de analisis */
- . {return token(yytext(), "ERROR", yyline, yycolumn);}
+ . {return token(yytext(), "ERROR_3", yyline, yycolumn);}

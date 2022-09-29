@@ -6,21 +6,31 @@
 package codigo;
 
 import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import jflex.exceptions.SilentExit;
 
-/**
- *
- * @author Ximena
- */
 public class Principal {
-    public static void main(String[] args) throws Exception {
-        String ruta1 = System.getProperty("user.dir")+"\\src\\codigo\\Lexer.flex";
-        String ruta2 = System.getProperty("user.dir")+"\\src\\codigo\\LexerCup.flex";
-        String[] rutaS = {"-parser", "Sintax", System.getProperty("user.dir")+"\\src\\codigo\\Sintax.cup"};
-        generar(ruta1, ruta2, rutaS);
+    public static void main(String[] args)  {
+        
+            String ruta1 = System.getProperty("user.dir")+"/src/codigo/Lexer.flex";
+            String ruta2 = System.getProperty("user.dir")+"/src/codigo/LexerColor.flex";
+            
+            try {
+            jflex.Main.generate(new String[]{ruta1,ruta2});
+            
+            /*String[] rutaS = {"-parser", "Sintax", System.getProperty("user.dir")+"/src/codigo/Sintax.cup"};
+            
+            System.out.println(System.getProperty("user.dir")+"/src/codigo/");
+            generar(ruta1, ruta2, rutaS);
+            */
+        } catch (SilentExit ex) {
+            Logger.getLogger(Principal.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
     
     public static void generar(String ruta1, String ruta2, String[] rutaS) throws IOException, Exception{
-        String ruta3 =  System.getProperty("user.dir")+"\\src\\codigo\\LexerColor.flex";
+        String ruta3 =  System.getProperty("user.dir")+"/src/codigo/LexerColor.flex";
         jflex.Main.generate(new String[]{ruta1, ruta3});
         
         /*java_cup.Main.main(rutaS);

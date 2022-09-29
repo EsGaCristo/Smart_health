@@ -1,6 +1,6 @@
-start programa{
+start  programa{
     Atlas begin(){
-Dispositivo Declare As str = "TV";
+Dispositivo Declare As str (12);
 VOL Declare As str = "Volumen";
 deviceControl(Dispositivo,true,[(VOL=20)]);
 driverLights(1000, [(2,2)]); 
@@ -12,7 +12,7 @@ registerA("19400584");//Borrar comillas para demostración de validación
 dispense(2); //Dispensa gel sanitizante por 2 segundos
 
 
-condition(a<3){a++;} //
+condition(a<3){a++} //
 
     }
 }End;

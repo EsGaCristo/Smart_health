@@ -746,7 +746,7 @@ class LexerColor {
       else {
         switch (zzAction < 0 ? zzAction : ZZ_ACTION[zzAction]) {
           case 1:
-            { return textColor(yychar, yylength(), Color.red);
+            { /*return textColor(yychar, yylength(), Color.red);*/
             }
             // fall through
           case 8: break;
