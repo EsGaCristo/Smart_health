@@ -429,6 +429,9 @@ public class Compilador extends javax.swing.JFrame {
         gramatica.group("VALOR", "( Numero | Numero_Decimal )",true);
         gramatica.group("TIPO_DATO", "( Int | Float | Logic)",true);
         
+        //Agrupacion de variables String
+        gramatica.group("VARIABLE","identificador Declare As str Asignacion Texto ",true);
+        
         // Agrupacion de asignacion de variables
         gramatica.group("VARIABLE","identificador Declare As TIPO_DATO Asignacion VALOR ",true);
         gramatica.group("VARIABLE","identificador Declare As TIPO_DATO Asignacion  ",true,2," ERROR SINTACTICO {}: FALTA VALOR [#, %]");
@@ -497,6 +500,8 @@ public class Compilador extends javax.swing.JFrame {
         gramatica.group("CICLOS_COMP", "CICLOS Parentesis_a (VALOR | PARAMETROS) Parentesis_c ");
         
         gramatica.delete("CICLOS",10,"ERROR SINTACTICO {} EL CICLO NO ESTA BIEN DECLARADO [#,%]");
+       
+        gramatica.delete(new String[]{"Parentesis_a","Parentesis_a"},17,"ERROR SINTACTICO {}: Los parentesis  no correspone a ninguna asignacion [#,%]");
         
         /** PUNTOS Y COMAS **/
         gramatica.finalLineColumn();
@@ -514,11 +519,43 @@ public class Compilador extends javax.swing.JFrame {
         
         /**BLOQUES DE CODIGO**/
         
+        gramatica.group("SENTENCIAS", "(FUNCIONES_COMP_PC | VARIABLE_PC) +");
+        
+        gramatica.loopForFunExecUntilChangeNotDetected(()->{
+            gramatica.group("CICLOS_COMP_LLAVES", "CICLOS_COMP Llave_a (SENTENCIAS)? Llave_c",true);
+            gramatica.group("SENTENCIAS", "(SENTENCIAS | CICLOS_COMP_LLAVES )+",true);
+        });
+        
+        /**BLOQUES DE CODIGO INCOMPLETOS**/
+        gramatica.loopForFunExecUntilChangeNotDetected(()->{
+            gramatica.group("CICLOS_COMP_LLAVES", "CICLOS_COMP  (SENTENCIAS)? Llave_c",true,14,
+                    "ERROR SINTACTICO {}: Falta la llave de apertura del bloque ' [] ' [#,%]");
+            gramatica.finalLineColumn();
+            
+            gramatica.group("CICLOS_COMP_LLAVES", "CICLOS_COMP Llave_a (SENTENCIAS)? ",true,15,
+                    "ERROR SINTACTICO {}: Falta la llave de cierre del bloque ' [] ' [#,%]");
+            gramatica.group("SENTENCIAS", "(SENTENCIAS | CICLOS_COMP_LLAVES )",true);
+            
+             });
         
         
+        /**ESTRUCTURA PRINCIPAL DEL ARCHIVO**/
+        /****************ARREGLAR***********************/
+            
+            
+            gramatica.group("BLOQUE", "(SENTENCIAS | CICLOS_COMP_LLAVES)+",true);
+
+
+            gramatica.group("MAIN", "Atlas Llave_a (BLOQUE)? Llave_c",true);
+            /**Preevenimos por si agregan llaves sin bloque de codigo**/
+            gramatica.delete(new String[]{"Llave_a","Llave_c"},16,"ERROR SINTACTICO {}: La/s llave [] no correspone a ningun bloque [#,%]");
+       
+            
+            //gramatica.delete("SENTENCIAS",17,"ERROR SINTACTICO {}: NO ESTAS DENTRO DE ATLAS [#,%]");
         
-        /**MOSTRAR GRAMATICAS**/
-        gramatica.show();
+            /****************ARREGLAR***********************/
+            /**MOSTRAR GRAMATICAS**/
+       gramatica.show();
     }
 
     private void semanticAnalysis() {
