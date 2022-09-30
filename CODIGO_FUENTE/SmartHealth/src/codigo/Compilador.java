@@ -389,8 +389,23 @@ public class Compilador extends javax.swing.JFrame {
 
         
         /*Expresiones logicas*/
-        gramatica.group("EXPRESION_LOG", "(FUNCIONES_COMP) (Op_Logico FUNCIONES_COMP)+");
-        gramatica.group("EXPRESION_LOG", "Parentesis_a EXPRESION_LOG Parentesis_c");
+        //delete FUNCION 
+        gramatica.loopForFunExecUntilChangeNotDetected(()->{
+            
+            gramatica.group("EXPRESION_LOG", "(FUNCIONES_COMP | EXPRESION_LOG) (Op_Logico (FUNCIONES_COMP | EXPRESION_LOG ))+");
+            gramatica.group("EXPRESION_LOG", "Parentesis_a ( EXPRESION_LOG | FUNCIONES_COMP) Parentesis_c");
+        });
+        
+        //ELIMINACION DE OPERADORES LOGICOS******
+        
+        /*Agrupacion de expresiones logicas como valor y parametro*/
+        gramatica.group("VALOR","EXPRESION_LOG");
+        gramatica.group("PARAMETROS", "VALOR (Coma VALOR)*" );
+        
+        /**ESTRUCTURAS DE CONTROL**/
+        gramatica.group("CICLOS", " ( Condition | For | While ) "); 
+        gramatica.group("CICLOS_COMP", "CICLOS  (VALOR | PARAMETROS)  ");
+        gramatica.group("CICLOS_COMP", "CICLOS Parentesis_a (VALOR | PARAMETROS) Parentesis_c ");
         
         
         gramatica.show();
