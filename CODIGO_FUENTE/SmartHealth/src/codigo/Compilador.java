@@ -426,14 +426,14 @@ public class Compilador extends javax.swing.JFrame {
         
         /*agrupacion de valores*/
         
-        gramatica.group("VALOR", "( Numero | Numero_Decimal )",true);
-        gramatica.group("TIPO_DATO", "( Int | Float | Logic)",true);
+        gramatica.group("VALOR", "( Numero | Numero_Decimal | Texto | Caracter)",true);
+        gramatica.group("TIPO_DATO", "( Int | Float | Logic | str | Char)",true);
         
         //Agrupacion de variables String
-        gramatica.group("VARIABLE","identificador Declare As str Asignacion Texto ",true);
+        //gramatica.group("VARIABLE","identificador Declare As str Asignacion Texto ",true);
         
         // Agrupacion de asignacion de variables
-        gramatica.group("VARIABLE","identificador Declare As TIPO_DATO Asignacion VALOR ",true);
+        gramatica.group("VARIABLE","identificador Declare As TIPO_DATO Asignacion VALOR ",true,identProd);
         gramatica.group("VARIABLE","identificador Declare As TIPO_DATO Asignacion  ",true,2," ERROR SINTACTICO {}: FALTA VALOR [#, %]");
         
         gramatica.finalLineColumn();
@@ -461,7 +461,7 @@ public class Compilador extends javax.swing.JFrame {
         
         /*AGRUPACION DE FUNCIONES */
         gramatica.group("FUNCIONES", "( Ventilate | admit | EmptyRoom | Dispense"
-                + " | Distance | DeviceControl | DriverLigths | OpenDoor "
+                + " | Distance | DeviceControl | DriverLights | OpenDoor "
                 + "| RegisterA | Exit )",true);
         
         gramatica.group("FUNCIONES_COMP", "FUNCIONES Parentesis_a ( VALOR | PARAMETROS  )* Parentesis_c",true);
@@ -546,7 +546,7 @@ public class Compilador extends javax.swing.JFrame {
             gramatica.group("BLOQUE", "(SENTENCIAS | CICLOS_COMP_LLAVES)+",true);
 
 
-            gramatica.group("MAIN", "Atlas Llave_a (BLOQUE)? Llave_c",true);
+            gramatica.group("MAIN", "Atlas Begin Llave_a (BLOQUE)* Llave_c",true);
             /**Preevenimos por si agregan llaves sin bloque de codigo**/
             gramatica.delete(new String[]{"Llave_a","Llave_c"},16,"ERROR SINTACTICO {}: La/s llave [] no correspone a ningun bloque [#,%]");
        
@@ -555,10 +555,25 @@ public class Compilador extends javax.swing.JFrame {
         
             /****************ARREGLAR***********************/
             /**MOSTRAR GRAMATICAS**/
-       gramatica.show();
+       //gramatica.show();
     }
 
     private void semanticAnalysis() {
+        HashMap< String,String> identDataType = new HashMap<>();
+        identDataType.put("int","Numero");
+        identDataType.put("str","Texto");
+        identDataType.put("logic","Op_Booleano");
+        identDataType.put("float","Numero_Decimal");
+        identDataType.put("char", "Caracter");
+        for(Production id:identProd){
+            if(!identDataType.get(id.lexemeRank(3)).equals(id.lexicalCompRank(-1))){
+                errors.add(new ErrorLSSL(1, "ERROR SEMANTICO {}: "
+                        + "VALOR NO COMPATIBLE CON EL TIPO DE DATO", id,true));
+            }else{
+                identificadores.put(id.lexemeRank(3), id.lexemeRank(-1));
+                
+            }
+        }
     }
 
     private void colorAnalysis() {

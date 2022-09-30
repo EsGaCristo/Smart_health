@@ -1,7 +1,12 @@
-start prueba{
-Atlas begin(){
-tiempo Declare As int=5;
-tiempo = 5;
-//Cerrar puertas y ventanas
+
+Atlas begin{
+MOVIE Declare As char= '1';
 }
-}End
+
+
+
+
+
+//MOVIE Declare As float = 1.2;
+//distance(od);
+//for ((distance(a)  &&  (asd>15))) ;
