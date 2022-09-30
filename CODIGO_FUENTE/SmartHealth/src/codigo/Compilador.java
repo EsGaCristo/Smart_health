@@ -372,26 +372,36 @@ public class Compilador extends javax.swing.JFrame {
          * MUCHO OJO CUATE*
          **/
         /*Eliminacion de tipos de dato y operadores de asignacion*/
-        gramatica.delete("VALOR",4,"Error Sintactico {}: Valor sin utilizar [#, %]");
-        gramatica.delete("Asignacion",5,"Error Sintactico {}: Intentas igualar nada [#, %]");
+        gramatica.delete("VALOR",4,"Error Sintactico {}: NUMERO FUERA DE ASIGNACION [#, %]");
+        gramatica.delete("Asignacion",5,"Error Sintactico {}: ASIGNACION DE VARIABLE INCORRECTA [#, %]");
         
         
         /* AGRUPACION PARA PARAMETROS */ 
         gramatica.group("VALOR", "identificador",true);
-        gramatica.group("PARAMETROS", "VALOR (Coma VALOR)*" );
+        gramatica.group("PARAMETROS", "VALOR (Coma (VALOR | Op_Booleano))*" );
         
         /*AGRUPACION DE FUNCIONES */
         gramatica.group("FUNCIONES", "( Ventilate | admit | EmptyRoom | Dispense"
                 + " | Distance | DeviceControl | DriverLigths | OpenDoor "
                 + "| RegisterA | Exit )",true);
         
-        gramatica.group("FUNCIONES_COMP", "FUNCIONES Parentesis_a ( VALOR | PARAMETROS )* Parentesis_c",true);
-
+        gramatica.group("FUNCIONES_COMP", "FUNCIONES Parentesis_a ( VALOR | PARAMETROS  )* Parentesis_c",true);
+        gramatica.group("FUNCIONES_COMP", "FUNCIONES Parentesis_a ( VALOR | PARAMETROS )* ",true,6,""
+                + "ERROR SINTACTICO {}: FALTO CERRAR PARENTESIS DE LA FUNCION [#,%]");
+        gramatica.finalLineColumn();
+        gramatica.group("FUNCIONES_COMP", "FUNCIONES  ( VALOR | PARAMETROS )* Parentesis_c",true,7,""
+                + "ERROR SINTACTICO {}: FALTO EL PARENTESIS DE LA FUNCION [#,%]");
+        gramatica.initialLineColumn();
+        
+        
+        //delete FUNCION 
+        gramatica.delete("FUNCIONES",8,"ERROR SINTACTICO {} LA FUNCION "
+                + "NO ESTA DECLARADA CORRECTAMENTE [#,%]");
         
         /*Expresiones logicas*/
-        //delete FUNCION 
+        
         gramatica.loopForFunExecUntilChangeNotDetected(()->{
-            
+            //gramatica.group("EXPRESION_LOG", "(VALOR | Numero) ");
             gramatica.group("EXPRESION_LOG", "(FUNCIONES_COMP | EXPRESION_LOG) (Op_Logico (FUNCIONES_COMP | EXPRESION_LOG ))+");
             gramatica.group("EXPRESION_LOG", "Parentesis_a ( EXPRESION_LOG | FUNCIONES_COMP) Parentesis_c");
         });
