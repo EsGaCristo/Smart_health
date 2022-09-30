@@ -3,7 +3,6 @@
 // source: src/codigo/LexerColor.flex
 
 package codigo;
-
 import compilerTools.TextColor;
 import java.awt.Color;
 

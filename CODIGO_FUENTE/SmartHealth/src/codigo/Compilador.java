@@ -355,14 +355,42 @@ public class Compilador extends javax.swing.JFrame {
         
         /*agrupacion de valores*/
         
-        gramatica.group("VALOR", "( Numero | Numero_Decimal | identificador)",true);
+        gramatica.group("VALOR", "( Numero | Numero_Decimal )",true);
         gramatica.group("TIPO_DATO", "( Int | Float | Logic)",true);
         
         // Agrupacion de asignacion de variables
         gramatica.group("VARIABLE","identificador Declare As TIPO_DATO Asignacion VALOR Punto_Coma",true);
-        gramatica.group("VARIABLE","identificador Declare As TIPO_DATO Asignacion VALOR ",true,4,"ERROR DE SINTAXIS");
+        gramatica.group("VARIABLE","identificador Declare As TIPO_DATO Asignacion VALOR ",true,2," ERROR SINTACTICO {}: FALTA PUNTO Y COMA [#, %]");
         
-        /**/
+        gramatica.finalLineColumn();
+        
+        gramatica.group("VARIABLE","identificador Declare As TIPO_DATO Asignacion VALOR ",3," ERROR SINTACTICO {}: FALTA PUNTO Y COMA [#, %]");
+        
+        gramatica.initialLineColumn();
+        
+        /**
+         * MUCHO OJO CUATE*
+         **/
+        /*Eliminacion de tipos de dato y operadores de asignacion*/
+        gramatica.delete("VALOR",4,"Error Sintactico {}: Valor sin utilizar [#, %]");
+        gramatica.delete("Asignacion",5,"Error Sintactico {}: Intentas igualar nada [#, %]");
+        
+        
+        /* AGRUPACION PARA PARAMETROS */ 
+        gramatica.group("VALOR", "identificador",true);
+        gramatica.group("PARAMETROS", "VALOR (Coma VALOR)*" );
+        
+        /*AGRUPACION DE FUNCIONES */
+        gramatica.group("FUNCIONES", "( Ventilate | admit | EmptyRoom | Dispense"
+                + " | Distance | DeviceControl | DriverLigths | OpenDoor "
+                + "| RegisterA | Exit )",true);
+        
+        gramatica.group("FUNCIONES_COMP", "FUNCIONES Parentesis_a ( VALOR | PARAMETROS )* Parentesis_c",true);
+
+        
+        /*Expresiones logicas*/
+        gramatica.group("EXPRESION_LOG", "(FUNCIONES_COMP) (Op_Logico FUNCIONES_COMP)+");
+        gramatica.group("EXPRESION_LOG", "Parentesis_a EXPRESION_LOG Parentesis_c");
         
         
         gramatica.show();

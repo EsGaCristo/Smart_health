@@ -1,3 +1,4 @@
+package codigo;
 import compilerTools.Token;
 
 %%
@@ -9,8 +10,8 @@ import compilerTools.Token;
 
 
 %{
-    public Token token(String lexema, String tipo, int linea, int columna){
-        return new Token(lexema, tipo, linea+1, columna+1);
+    public Token token(String lexema, String tipo, int line, int column){
+        return new Token(lexema, tipo, line+1, column+1);
     }
 %} 
 
@@ -55,6 +56,8 @@ float   {return token(yytext(), "Float", yyline, yycolumn);}
 
 /* Palabra reservada Else */
 ( else ) {return token(yytext(), "Else", yyline, yycolumn);}
+
+
 
 /* Palabra reservada Ventilar */
 ( ventilate ) {return token(yytext(), "Ventilate", yyline, yycolumn);}
