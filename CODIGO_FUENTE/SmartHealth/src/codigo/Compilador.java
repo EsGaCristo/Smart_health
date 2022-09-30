@@ -359,12 +359,12 @@ public class Compilador extends javax.swing.JFrame {
         gramatica.group("TIPO_DATO", "( Int | Float | Logic)",true);
         
         // Agrupacion de asignacion de variables
-        gramatica.group("VARIABLE","identificador Declare As TIPO_DATO Asignacion VALOR Punto_Coma",true);
-        gramatica.group("VARIABLE","identificador Declare As TIPO_DATO Asignacion VALOR ",true,2," ERROR SINTACTICO {}: FALTA PUNTO Y COMA [#, %]");
+        gramatica.group("VARIABLE","identificador Declare As TIPO_DATO Asignacion VALOR ",true);
+        gramatica.group("VARIABLE","identificador Declare As TIPO_DATO Asignacion  ",true,2," ERROR SINTACTICO {}: FALTA VALOR [#, %]");
         
         gramatica.finalLineColumn();
         
-        gramatica.group("VARIABLE","identificador Declare As TIPO_DATO Asignacion VALOR ",3," ERROR SINTACTICO {}: FALTA PUNTO Y COMA [#, %]");
+        gramatica.group("VARIABLE","identificador  TIPO_DATO Asignacion VALOR ",3," ERROR SINTACTICO {}: FALTAN PALABRAS RESERVADAS DECLARE AS [#, %]");
         
         gramatica.initialLineColumn();
         
@@ -383,7 +383,7 @@ public class Compilador extends javax.swing.JFrame {
         
         /* AGRUPACION PARA PARAMETROS */ 
         gramatica.group("VALOR", "identificador",true);
-        gramatica.group("PARAMETROS", "VALOR (Coma (VALOR | Op_Booleano))*" );
+        gramatica.group("PARAMETROS", "( VALOR | Op_Booleano) (Coma (VALOR | Op_Booleano))*" );
         
         /*AGRUPACION DE FUNCIONES */
         gramatica.group("FUNCIONES", "( Ventilate | admit | EmptyRoom | Dispense"
@@ -427,8 +427,26 @@ public class Compilador extends javax.swing.JFrame {
         
         gramatica.delete("CICLOS",10,"ERROR SINTACTICO {} EL CICLO NO ESTA BIEN DECLARADO [#,%]");
         
-
+        /** PUNTOS Y COMAS **/
+        gramatica.finalLineColumn();
+        gramatica.group("VARIABLE_PC", "VARIABLE Punto_Coma",true);
+        gramatica.group("VARIABLE_PC", "VARIABLE ",true,11,"ERROR SINTACTICO {} FALTA PUNTO Y COMA [#,%]");
         
+        
+        
+        gramatica.group("FUNCIONES_COMP_PC", "FUNCIONES_COMP Punto_Coma",true);
+        gramatica.group("FUNCIONES_COMP_PC", "FUNCIONES_COMP ",true,12,"ERROR SINTACTICO {} FALTA PUNTO Y COMA [#,%]");
+        
+        gramatica.initialLineColumn();
+        gramatica.delete("Punto_Coma",13,"ERROR SINTACTICO {} PUNTO Y COMA NO ESTA AL FINAL DE UNA SENTENCIA VALIDA [#,%]");
+        
+        
+        /**BLOQUES DE CODIGO**/
+        
+        
+        
+        
+        /**MOSTRAR GRAMATICAS**/
         gramatica.show();
     }
 

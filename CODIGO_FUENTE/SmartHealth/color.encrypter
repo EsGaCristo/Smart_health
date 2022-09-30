@@ -1,5 +1,19 @@
-dsadasd
-dasdsadsdffds
-fsd
-f
-dsf
+start  programa{
+    Atlas begin(){
+Dispositivo Declare As int = 12;
+VOL Declare As str = "Volumen";
+deviceControl(Dispositivo, true);
+driverLights(1000, [(2,2)]); //Las funciones solo aceptan ID
+valor Declare As int = 26;
+valor = 10;
+min3 Declare As float = 3;
+emptyRoom( true,min3, true,true);//Sanitizar, 3 minutos, luces apagadas para ahorrar energía, puerta cerrada
+ventilate(valor,true,true,true); //Tiempo en minutos que se ejecutará la función, eliminador de bacterias, abrir puertas,vnt
+registerA("19400584");//Borrar comillas para demostración de validación
+dispense(2); //Dispensa gel sanitizante por 2 segundos
+
+
+condition(a<3){a++} //
+
+    }
+}End;
