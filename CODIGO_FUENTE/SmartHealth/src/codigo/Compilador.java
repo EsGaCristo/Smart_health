@@ -368,6 +368,11 @@ public class Compilador extends javax.swing.JFrame {
         
         gramatica.initialLineColumn();
         
+        //Ponerle sus errores a esta **********
+        gramatica.group("EXP_REL", " (VALOR | identificador) Op_Relacional (VALOR | identificador) ");
+        //Ponerle sus errores a esta **********
+        
+        
         /**
          * MUCHO OJO CUATE*
          **/
@@ -401,22 +406,28 @@ public class Compilador extends javax.swing.JFrame {
         /*Expresiones logicas*/
         
         gramatica.loopForFunExecUntilChangeNotDetected(()->{
-            //gramatica.group("EXPRESION_LOG", "(VALOR | Numero) ");
-            gramatica.group("EXPRESION_LOG", "(FUNCIONES_COMP | EXPRESION_LOG) (Op_Logico (FUNCIONES_COMP | EXPRESION_LOG ))+");
-            gramatica.group("EXPRESION_LOG", "Parentesis_a ( EXPRESION_LOG | FUNCIONES_COMP) Parentesis_c");
+            gramatica.group("EXPRESION_LOG", "(FUNCIONES_COMP | EXPRESION_LOG | EXP_REL) (Op_Logico (FUNCIONES_COMP | EXPRESION_LOG | EXP_REL))+");
+            gramatica.group("EXPRESION_LOG", "Parentesis_a ( EXPRESION_LOG | FUNCIONES_COMP | EXP_REL) Parentesis_c");
         });
         
         //ELIMINACION DE OPERADORES LOGICOS******
+        gramatica.initialLineColumn();
+        gramatica.delete("Op_Logico",9,"ERROR SINTACTICO {} LA OPERACION LOGICA NO ES VALIDA [#,%] ");
+        
         
         /*Agrupacion de expresiones logicas como valor y parametro*/
         gramatica.group("VALOR","EXPRESION_LOG");
         gramatica.group("PARAMETROS", "VALOR (Coma VALOR)*" );
         
         /**ESTRUCTURAS DE CONTROL**/
+        
         gramatica.group("CICLOS", " ( Condition | For | While ) "); 
         gramatica.group("CICLOS_COMP", "CICLOS  (VALOR | PARAMETROS)  ");
         gramatica.group("CICLOS_COMP", "CICLOS Parentesis_a (VALOR | PARAMETROS) Parentesis_c ");
         
+        gramatica.delete("CICLOS",10,"ERROR SINTACTICO {} EL CICLO NO ESTA BIEN DECLARADO [#,%]");
+        
+
         
         gramatica.show();
     }
