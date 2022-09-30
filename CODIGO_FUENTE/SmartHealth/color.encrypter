@@ -1,12 +1,4 @@
-
 Atlas begin{
-MOVIE Declare As char= '1';
+	for(a>5){
+	}
 }
-
-
-
-
-
-//MOVIE Declare As float = 1.2;
-//distance(od);
-//for ((distance(a)  &&  (asd>15))) ;

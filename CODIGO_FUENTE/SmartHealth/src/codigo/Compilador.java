@@ -180,6 +180,7 @@ public class Compilador extends javax.swing.JFrame {
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
+        jtpCode.setFont(new java.awt.Font("Noto Sans", 0, 18)); // NOI18N
         jScrollPane1.setViewportView(jtpCode);
 
         panelButtonCompilerExecute.setBackground(new java.awt.Color(155, 202, 212));
@@ -443,7 +444,7 @@ public class Compilador extends javax.swing.JFrame {
         gramatica.initialLineColumn();
         
         //Ponerle sus errores a esta **********
-        gramatica.group("EXP_REL", " (VALOR | identificador) Op_Relacional (VALOR | identificador) ");
+        gramatica.group("EXP_REL", " (VALOR | identificador) Op_Relacional (VALOR | identificador) ",true,identProd);
         //Ponerle sus errores a esta **********
         
         
@@ -454,28 +455,48 @@ public class Compilador extends javax.swing.JFrame {
         gramatica.delete("VALOR",4,"Error Sintactico {}: NUMERO FUERA DE ASIGNACION [#, %]");
         gramatica.delete("Asignacion",5,"Error Sintactico {}: ASIGNACION DE VARIABLE INCORRECTA [#, %]");
         
-        
         /* AGRUPACION PARA PARAMETROS */ 
         gramatica.group("VALOR", "identificador",true);
-        gramatica.group("PARAMETROS", "( VALOR | Op_Booleano) (Coma (VALOR | Op_Booleano))*" );
+        //gramatica.group("PARAMETROS", "( VALOR | Op_Booleano) (Coma (VALOR | Op_Booleano))*" );
+        gramatica.group("BOOL", "( Logic | Op_Booleano )",true);
         
-        /*AGRUPACION DE FUNCIONES */
-        gramatica.group("FUNCIONES", "( Ventilate | admit | EmptyRoom | Dispense"
-                + " | Distance | DeviceControl | DriverLights | OpenDoor "
-                + "| RegisterA | Exit )",true);
         
-        gramatica.group("FUNCIONES_COMP", "FUNCIONES Parentesis_a ( VALOR | PARAMETROS  )* Parentesis_c",true);
-        gramatica.group("FUNCIONES_COMP", "FUNCIONES Parentesis_a ( VALOR | PARAMETROS )* ",true,6,""
+        
+        
+        gramatica.group("F_Ventilate", "Ventilate Parentesis_a VALOR Coma BOOL Coma BOOL Coma BOOL Parentesis_c",true);
+        gramatica.group("F_Admit", "admit Parentesis_a BOOL Coma VALOR Coma VALOR Parentesis_c",true);
+        gramatica.group("F_EmptyRoom", "EmptyRoom Parentesis_a BOOL Coma VALOR Coma BOOL Coma BOOL Parentesis_c",true);
+        gramatica.group("F_Dispense", "Dispense Parentesis_a VALOR Parentesis_c",true);
+        gramatica.group("F_Distance", "Distance Parentesis_a VALOR Parentesis_c",true);
+        gramatica.group("F_DeviceControl", "DeviceControl Parentesis_a VALOR Coma BOOL Coma VALOR Parentesis_c",true);
+        gramatica.group("F_DriverLights", "DriverLights Parentesis_a VALOR Coma VALOR Parentesis_c",true);
+        gramatica.group("F_OpenDoor", "OpenDoor Parentesis_a VALOR Coma VALOR Parentesis_c",true);
+        gramatica.group("F_RegisterA", "RegisterA Parentesis_a VALOR Parentesis_c",true);
+        gramatica.group("F_Exit", "Exit Parentesis_a BOOL Parentesis_c",true);
+        
+        
+        /*AGRUPACION DE FUNCIONES =========================================*/
+        gramatica.group("FUNCIONES_COMP", "( F_Ventilate | F_admit | F_EmptyRoom | F_Dispense"
+                + " | F_Distance | F_DeviceControl | F_DriverLights | F_OpenDoor "
+                + "| F_RegisterA | F_Exit )",true);
+        
+        
+        
+        
+        //gramatica.group("FUNCIONES_COMP", "FUNCIONES ",true,identProd);
+        /*gramatica.group("FUNCIONES_COMP", "FUNCIONES ",true,6,""
                 + "ERROR SINTACTICO {}: FALTO CERRAR PARENTESIS DE LA FUNCION [#,%]");
         gramatica.finalLineColumn();
         gramatica.group("FUNCIONES_COMP", "FUNCIONES  ( VALOR | PARAMETROS )* Parentesis_c",true,7,""
                 + "ERROR SINTACTICO {}: FALTO EL PARENTESIS DE LA FUNCION [#,%]");
-        gramatica.initialLineColumn();
+        gramatica.initialLineColumn();*/
         
+        /*AGRUPACION DE FUNCIONES =========================================*/
         
+
         //delete FUNCION 
-        gramatica.delete("FUNCIONES",8,"ERROR SINTACTICO {} LA FUNCION "
-                + "NO ESTA DECLARADA CORRECTAMENTE [#,%]");
+        //gramatica.delete("FUNCIONES",8,"ERROR SINTACTICO {} LA FUNCION "
+         //       + "NO ESTA DECLARADA CORRECTAMENTE [#,%]");
         
         /*Expresiones logicas*/
         
@@ -565,15 +586,27 @@ public class Compilador extends javax.swing.JFrame {
         identDataType.put("logic","Op_Booleano");
         identDataType.put("float","Numero_Decimal");
         identDataType.put("char", "Caracter");
+        identDataType.put("exit", "Op_Booleano");
         for(Production id:identProd){
-            if(!identDataType.get(id.lexemeRank(3)).equals(id.lexicalCompRank(-1))){
+            
+            if(id.getName().equals("FUNCIONES_COMP")){
+                /*
+                System.out.println(id.lexicalCompRank(2));
+                if (!identDataType.get(id.lexemeRank(0)).equals(id.lexicalCompRank(2))) {
+                    System.out.println("incompatible");
+                }*/
+                    
+            }else if(id.getSizeTokens()==6){
+                if(!identDataType.get(id.lexemeRank(3)).equals(id.lexicalCompRank(-1))){
                 errors.add(new ErrorLSSL(1, "ERROR SEMANTICO {}: "
-                        + "VALOR NO COMPATIBLE CON EL TIPO DE DATO", id,true));
-            }else{
-                identificadores.put(id.lexemeRank(3), id.lexemeRank(-1));
-                
+                        + "VALOR NO COMPATIBLE CON EL TIPO DE DATO [#, %]", id,true));
+                }else{
+                    identificadores.put(id.lexemeRank(3), id.lexemeRank(-1));
+                }
             }
+            
         }
+        
     }
 
     private void colorAnalysis() {

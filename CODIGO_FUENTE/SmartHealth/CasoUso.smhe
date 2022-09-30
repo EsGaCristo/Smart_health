@@ -1,18 +1,24 @@
-start  programa{
-    Atlas begin(){
-Dispositivo Declare As str (12);
-VOL Declare As str = "Volumen";
-deviceControl(Dispositivo,true,[(VOL=20)]);
-driverLights(1000, [(2,2)]); 
-valor Declare As int;
-valor = 10;
-emptyRoom(true, 3, true,true);//Sanitizar, 3 minutos, luces apagadas para ahorrar energía, puerta cerrada
-ventilate(valor,true,true,true); //Tiempo en minutos que se ejecutará la función, eliminador de bacterias, abrir puertas,vnt
-registerA("19400584");//Borrar comillas para demostración de validación
-dispense(2); //Dispensa gel sanitizante por 2 segundos
+Atlas begin{
+	Dispositivo Declare As int = 12;
+	VOL Declare As str = "Volumen";
+	deviceControl(Dispositivo, true,VOL);
+
+	driverLights(Dispositivos,VOL); //Las funciones solo aceptan ID
+
+	valor Declare As int = 26;
+	// valor = 10;
+	min3 Declare As float = 3.6;
+	emptyRoom( true,min3, true,true);//Sanitizar, 3 minutos, luces apagadas para ahorrar energía,  	puerta cerrada
+	ventilate(valor,true,true,true); //Tiempo en minutos que se ejecutará la función,eliminador 	de bacterias, abrir puertas,vnt
+
+	NoControl Declare As str = "19400567";
+	//registerA("19400584");//Borrar comillas para demostración de validación
+	registerA(NoControl);
+	
+	gel Declare As  float = 2.5;	
+
+	dispense(gel);  //Dispensa gel sanitizante por 2 segundos
 
 
-condition(a<3){a++} //
-
-    }
-}End;
+	condition(a<3){}// a++;} // Agregar aritmetica
+    }//fin de la clase
