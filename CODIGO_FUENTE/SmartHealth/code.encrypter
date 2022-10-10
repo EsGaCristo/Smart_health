@@ -1,4 +1,7 @@
-Atlas begin{
-	for(a>5){
-	}
+Atlas begin {
+k Declare As int = 5;
+a Declare As float = 2.5;
+exit (true);
+admit(true,a,k);
+//emptyRoom (true, k , false,true); // no la insertamos en el analisis semantico a proposito
 }

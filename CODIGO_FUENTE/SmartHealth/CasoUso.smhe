@@ -5,7 +5,7 @@ Atlas begin{
 
 	driverLights(Dispositivos,VOL); //Las funciones solo aceptan ID
 
-	valor Declare As int = 26;
+	valor Declare As int = "dasdsada";
 	// valor = 10;
 	min3 Declare As float = 3.6;
 	emptyRoom( true,min3, true,true);//Sanitizar, 3 minutos, luces apagadas para ahorrar energía,  	puerta cerrada

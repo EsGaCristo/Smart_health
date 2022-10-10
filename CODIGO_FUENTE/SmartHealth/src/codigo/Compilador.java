@@ -13,6 +13,7 @@ import compilerTools.Production;
 import compilerTools.TextColor;
 import compilerTools.Token;
 import java.awt.Color;
+import java.awt.List;
 import java.awt.event.ActionEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
@@ -41,6 +42,7 @@ public class Compilador extends javax.swing.JFrame {
     private ArrayList<TextColor> textsColor;
     private Timer timerKeyReleased;
     private ArrayList<Production> identProd;
+    private ArrayList <Production> identProdFun;
     private HashMap<String, String> identificadores;
     private boolean codeHasBeenCompiled = false;
 
@@ -76,6 +78,7 @@ public class Compilador extends javax.swing.JFrame {
         errors = new ArrayList<>();
         textsColor = new ArrayList<>();
         identProd = new ArrayList<>();
+        identProdFun = new ArrayList<>();
         identificadores = new HashMap<>();
         Functions.setAutocompleterJTextComponent(new String[]{}, jtpCode, () -> {
             timerKeyReleased.restart();
@@ -339,7 +342,7 @@ public class Compilador extends javax.swing.JFrame {
     }//GEN-LAST:event_btnNuevoActionPerformed
 
     private void btnAbrirActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAbrirActionPerformed
-        if (directorio.Open()) {
+        if (directorio.Open()) {            
             colorAnalysis();
             clearFields();
         }
@@ -463,22 +466,31 @@ public class Compilador extends javax.swing.JFrame {
         
         
         
-        gramatica.group("F_Ventilate", "Ventilate Parentesis_a VALOR Coma BOOL Coma BOOL Coma BOOL Parentesis_c",true);
-        gramatica.group("F_Admit", "admit Parentesis_a BOOL Coma VALOR Coma VALOR Parentesis_c",true);
+        gramatica.group("F_Ventilate", "Ventilate  Parentesis_a  BOOL  Coma  BOOL Coma VALOR Parentesis_c",true);
+        
+        gramatica.group("F_Admit", "admit Parentesis_a BOOL Coma VALOR Coma VALOR Parentesis_c ",true);
+        
         gramatica.group("F_EmptyRoom", "EmptyRoom Parentesis_a BOOL Coma VALOR Coma BOOL Coma BOOL Parentesis_c",true);
+        
         gramatica.group("F_Dispense", "Dispense Parentesis_a VALOR Parentesis_c",true);
+        
         gramatica.group("F_Distance", "Distance Parentesis_a VALOR Parentesis_c",true);
+        
         gramatica.group("F_DeviceControl", "DeviceControl Parentesis_a VALOR Coma BOOL Coma VALOR Parentesis_c",true);
+        
         gramatica.group("F_DriverLights", "DriverLights Parentesis_a VALOR Coma VALOR Parentesis_c",true);
+        
         gramatica.group("F_OpenDoor", "OpenDoor Parentesis_a VALOR Coma VALOR Parentesis_c",true);
+        
         gramatica.group("F_RegisterA", "RegisterA Parentesis_a VALOR Parentesis_c",true);
+        
         gramatica.group("F_Exit", "Exit Parentesis_a BOOL Parentesis_c",true);
         
         
         /*AGRUPACION DE FUNCIONES =========================================*/
-        gramatica.group("FUNCIONES_COMP", "( F_Ventilate | F_admit | F_EmptyRoom | F_Dispense"
+        gramatica.group("FUNCIONES_COMP", "( F_Ventilate | F_Admit | F_EmptyRoom | F_Dispense "
                 + " | F_Distance | F_DeviceControl | F_DriverLights | F_OpenDoor "
-                + "| F_RegisterA | F_Exit )",true);
+                + "| F_RegisterA | F_Exit )",true,identProdFun);
         
         
         
@@ -586,28 +598,75 @@ public class Compilador extends javax.swing.JFrame {
         identDataType.put("logic","Op_Booleano");
         identDataType.put("float","Numero_Decimal");
         identDataType.put("char", "Caracter");
-        identDataType.put("exit", "Op_Booleano");
         for(Production id:identProd){
             
+            //System.out.println(identDataType);
             if(id.getName().equals("FUNCIONES_COMP")){
-                /*
-                System.out.println(id.lexicalCompRank(2));
-                if (!identDataType.get(id.lexemeRank(0)).equals(id.lexicalCompRank(2))) {
-                    System.out.println("incompatible");
-                }*/
-                    
-            }else if(id.getSizeTokens()==6){
+                 //**    NOTA: BORRAR ESTA PARTE Y REACOMODAR     **//    
+            }else if(id.getSizeTokens()==6){ // Verifica por numero de caracteres si es una declaracion de variable
+                
+                /**Recupera el tipo de token de la declaracion, 
+                 * lo busca si se encuentra en el mapa de tipos
+                 * y compara el tipo de dato de la asignacion para 
+                 * ver si encaja con el valor del mapa
+                 */
+                
                 if(!identDataType.get(id.lexemeRank(3)).equals(id.lexicalCompRank(-1))){
                 errors.add(new ErrorLSSL(1, "ERROR SEMANTICO {}: "
                         + "VALOR NO COMPATIBLE CON EL TIPO DE DATO [#, %]", id,true));
                 }else{
-                    identificadores.put(id.lexemeRank(3), id.lexemeRank(-1));
+                    identificadores.put(id.lexemeRank(0), id.lexemeRank(-1));
                 }
             }
             
         }
+        /** Analisis Semantico de las Funciones **/
+        HashMap <String,ArrayList> identFun = new HashMap<>();
+        identFun.put("exit", parametrosFun("Op_Booleano"));
+        identFun.put("admit", parametrosFun("Op_Booleano","Coma","identificador","Coma","identificador")); 
+               
+        //identFun.forEach((k,v)-> System.out.println(v.size()));
+
+        for(Production id: identProdFun){
+            String keyHash = id.lexemeRank(0);
+            if ( identFun.get(keyHash) == null ) { //Buscamos en el mapa de funciones si existe la funcion que tenemos en el codigo
+                errors.add(new ErrorLSSL(2, "ERROR SEMANTICO {}: "
+                        + "Funcion no es valida en el lenguaje [#, %]", id,true));
+            }else{//existe la regla semantica para la funcion
+                if(identFun.get(keyHash).size() != (id.getSizeTokens()-3)){ //Cantidad de parametros correctos
+                        errors.add(new ErrorLSSL(3, "ERROR SEMANTICO {}: "
+                        + "Cantidad de parametros no admitidos (Mas o menos de los necesarios) [#, %]", id,true));
+                }
+                int i = 2;
+                for(Object TokenID: identFun.get(keyHash)){ // recorrer tokens  verificar que encajan con la clave del HashMap
+                    
+                    if(!TokenID.equals(id.lexicalCompRank(i))){ //Verificar si valor es valido para la funcion
+                        errors.add(new ErrorLSSL(4, "ERROR SEMANTICO {}: "
+                        + "Valor en la funcion no corresponde [#, %]", id,true));
+                        
+                    }else if(id.lexicalCompRank(i).equals("identificador") && (identificadores.get(id.lexemeRank(i))) == null ){
+                        errors.add(new ErrorLSSL(5, "ERROR SEMANTICO {}: "
+                        + "Identificador no ha sido declarado [#, %]", id,true));
+                    }//Bloque Else IF detecta si el identificador ya fue declarado
+                    i++;
+                }
+            }//bloque de codigo para determinar si la semantica de la funcion esta bien
+//            for (int i = 2; i < id.getSizeTokens(); i++) {
+//                System.out.println(id.tokenRank(i));
+//                
+//            }
+        }
         
     }
+    
+    public ArrayList<String> parametrosFun(String ... args){
+        ArrayList<String> temp = new ArrayList<String>();
+        for(String arg:args){
+            temp.add(arg);
+        }
+        return temp;
+        
+    }// FUNCION PARA AGREGAR PARAMETROS DIFETENTES DE CADA FUNCION
 
     private void colorAnalysis() {
         /* Limpiar el arreglo de colores */
@@ -665,6 +724,7 @@ public class Compilador extends javax.swing.JFrame {
         tokens.clear();
         errors.clear();
         identProd.clear();
+        identProdFun.clear();
         identificadores.clear();
         codeHasBeenCompiled = false;
     }
