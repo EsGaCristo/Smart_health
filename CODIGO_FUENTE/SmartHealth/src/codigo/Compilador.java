@@ -1,6 +1,5 @@
 package codigo;
 
-
 import com.formdev.flatlaf.FlatIntelliJLaf;
 import compilerTools.CodeBlock;
 import javax.swing.UIManager;
@@ -42,7 +41,7 @@ public class Compilador extends javax.swing.JFrame {
     private ArrayList<TextColor> textsColor;
     private Timer timerKeyReleased;
     private ArrayList<Production> identProd;
-    private ArrayList <Production> identProdFun;
+    private ArrayList<Production> identProdFun;
     private HashMap<String, String> identificadores;
     private boolean codeHasBeenCompiled = false;
 
@@ -342,7 +341,7 @@ public class Compilador extends javax.swing.JFrame {
     }//GEN-LAST:event_btnNuevoActionPerformed
 
     private void btnAbrirActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAbrirActionPerformed
-        if (directorio.Open()) {            
+        if (directorio.Open()) {
             colorAnalysis();
             clearFields();
         }
@@ -421,251 +420,240 @@ public class Compilador extends javax.swing.JFrame {
     }
 
     private void syntacticAnalysis() {
-         Grammar gramatica = new Grammar(tokens, errors);
+        Grammar gramatica = new Grammar(tokens, errors);
 
         /* Mostrar gramáticas */
-        gramatica.delete(new String[]{"ERROR","ERROR_1","ERROR_2","ERROR_3"}, 1);//ELIMINACION Y RESALTO DE ERRORES
-        
+        gramatica.delete(new String[]{"ERROR", "ERROR_1", "ERROR_2", "ERROR_3"}, 1);//ELIMINACION Y RESALTO DE ERRORES
+
         //Aqui empezamos con las producciones
-        
         /*agrupacion de valores*/
-        
-        gramatica.group("VALOR", "( Numero | Numero_Decimal | Texto | Caracter)",true);
-        gramatica.group("TIPO_DATO", "( Int | Float | Logic | str | Char)",true);
-        
+        gramatica.group("VALOR", "( Numero | Numero_Decimal | Texto | Caracter)", true);
+        gramatica.group("TIPO_DATO", "( Int | Float | Logic | str | Char)", true);
+
         //Agrupacion de variables String
         //gramatica.group("VARIABLE","identificador Declare As str Asignacion Texto ",true);
-        
         // Agrupacion de asignacion de variables
-        gramatica.group("VARIABLE","identificador Declare As TIPO_DATO Asignacion VALOR ",true,identProd);
-        gramatica.group("VARIABLE","identificador Declare As TIPO_DATO Asignacion  ",true,2," ERROR SINTACTICO {}: FALTA VALOR [#, %]");
-        
+        gramatica.group("VARIABLE", "identificador Declare As TIPO_DATO Asignacion VALOR ", true, identProd);
+        gramatica.group("VARIABLE", "identificador Declare As TIPO_DATO Asignacion  ", true, 2, " ERROR SINTACTICO {}: FALTA VALOR [#, %]");
+
         gramatica.finalLineColumn();
-        
-        gramatica.group("VARIABLE","identificador  TIPO_DATO Asignacion VALOR ",3," ERROR SINTACTICO {}: FALTAN PALABRAS RESERVADAS DECLARE AS [#, %]");
-        
+
+        gramatica.group("VARIABLE", "identificador  TIPO_DATO Asignacion VALOR ", 3, " ERROR SINTACTICO {}: FALTAN PALABRAS RESERVADAS DECLARE AS [#, %]");
+
         gramatica.initialLineColumn();
-        
+
         //Ponerle sus errores a esta **********
-        gramatica.group("EXP_REL", " (VALOR | identificador) Op_Relacional (VALOR | identificador) ",true,identProd);
+        gramatica.group("EXP_REL", " (VALOR | identificador) Op_Relacional (VALOR | identificador) ", true, identProd);
         //Ponerle sus errores a esta **********
-        
-        
+
         /**
          * MUCHO OJO CUATE*
-         **/
+         *
+         */
         /*Eliminacion de tipos de dato y operadores de asignacion*/
-        gramatica.delete("VALOR",4,"Error Sintactico {}: NUMERO FUERA DE ASIGNACION [#, %]");
-        gramatica.delete("Asignacion",5,"Error Sintactico {}: ASIGNACION DE VARIABLE INCORRECTA [#, %]");
-        
-        /* AGRUPACION PARA PARAMETROS */ 
-        gramatica.group("VALOR", "identificador",true);
-        //gramatica.group("PARAMETROS", "( VALOR | Op_Booleano) (Coma (VALOR | Op_Booleano))*" );
-        gramatica.group("BOOL", "( Logic | Op_Booleano )",true);
-        
-        
-        
-        
-        gramatica.group("F_Ventilate", "Ventilate  Parentesis_a  BOOL  Coma  BOOL Coma VALOR Parentesis_c",true);
-        
-        gramatica.group("F_Admit", "admit Parentesis_a BOOL Coma VALOR Coma VALOR Parentesis_c ",true);
-        
-        gramatica.group("F_EmptyRoom", "EmptyRoom Parentesis_a BOOL Coma VALOR Coma BOOL Coma BOOL Parentesis_c",true);
-        
-        gramatica.group("F_Dispense", "Dispense Parentesis_a VALOR Parentesis_c",true);
-        
-        gramatica.group("F_Distance", "Distance Parentesis_a VALOR Parentesis_c",true);
-        
-        gramatica.group("F_DeviceControl", "DeviceControl Parentesis_a VALOR Coma BOOL Coma VALOR Parentesis_c",true);
-        
-        gramatica.group("F_DriverLights", "DriverLights Parentesis_a VALOR Coma VALOR Parentesis_c",true);
-        
-        gramatica.group("F_OpenDoor", "OpenDoor Parentesis_a VALOR Coma VALOR Parentesis_c",true);
-        
-        gramatica.group("F_RegisterA", "RegisterA Parentesis_a VALOR Parentesis_c",true);
-        
-        gramatica.group("F_Exit", "Exit Parentesis_a BOOL Parentesis_c",true);
-        
-        
-        /*AGRUPACION DE FUNCIONES =========================================*/
-        gramatica.group("FUNCIONES_COMP", "( F_Ventilate | F_Admit | F_EmptyRoom | F_Dispense "
-                + " | F_Distance | F_DeviceControl | F_DriverLights | F_OpenDoor "
-                + "| F_RegisterA | F_Exit )",true,identProdFun);
-        
-        
-        
-        
-        //gramatica.group("FUNCIONES_COMP", "FUNCIONES ",true,identProd);
-        /*gramatica.group("FUNCIONES_COMP", "FUNCIONES ",true,6,""
-                + "ERROR SINTACTICO {}: FALTO CERRAR PARENTESIS DE LA FUNCION [#,%]");
-        gramatica.finalLineColumn();
-        gramatica.group("FUNCIONES_COMP", "FUNCIONES  ( VALOR | PARAMETROS )* Parentesis_c",true,7,""
-                + "ERROR SINTACTICO {}: FALTO EL PARENTESIS DE LA FUNCION [#,%]");
-        gramatica.initialLineColumn();*/
-        
-        /*AGRUPACION DE FUNCIONES =========================================*/
-        
+        gramatica.delete("VALOR", 4, "Error Sintactico {}: NUMERO FUERA DE ASIGNACION [#, %]");
+        gramatica.delete("Asignacion", 5, "Error Sintactico {}: ASIGNACION DE VARIABLE INCORRECTA [#, %]");
 
+        /* AGRUPACION PARA PARAMETROS */
+        gramatica.group("VALOR", "identificador", true);
+        gramatica.group("PARAMETROS", "( VALOR | Op_Booleano) (Coma (VALOR | Op_Booleano))*");
+
+        /*AGRUPACION DE FUNCIONES =========================================*/
+        gramatica.group("FUNCIONES", "( Ventilate | admit | EmptyRoom | Dispense "
+                + " | Distance | DeviceControl | DriverLights | OpenDoor "
+                + "| RegisterA | Exit )", true);
+
+        //FUNCIONES_COMP identProdFun
+        gramatica.group("FUNCIONES_COMP", "FUNCIONES Parentesis_a ( VALOR | PARAMETROS )+ Parentesis_c", true, identProdFun);
+
+        gramatica.group("FUNCIONES_COMP", "FUNCIONES ", true, 6, ""
+                + "ERROR SINTACTICO {}: FALTO CERRAR PARENTESIS DE LA FUNCION [#,%]");
+
+        gramatica.finalLineColumn();
+        gramatica.group("FUNCIONES_COMP", "FUNCIONES  ( VALOR | PARAMETROS )* Parentesis_c", true, 7, ""
+                + "ERROR SINTACTICO {}: FALTO EL PARENTESIS DE LA FUNCION [#,%]");
+        
+        gramatica.group("FUNCIONES_COMP", "FUNCIONES  Parentesis_a Parentesis_c", true, 20, ""
+                + "ERROR SINTACTICO {}: LAS FUNCIONES DEBEN LLEVAR PARAMETROS [#,%]");
+        gramatica.initialLineColumn();
+
+        /*AGRUPACION DE FUNCIONES =========================================*/
         //delete FUNCION 
-        //gramatica.delete("FUNCIONES",8,"ERROR SINTACTICO {} LA FUNCION "
-         //       + "NO ESTA DECLARADA CORRECTAMENTE [#,%]");
-        
+        gramatica.delete("FUNCIONES", 8, "ERROR SINTACTICO {} LA FUNCION "
+                + "NO ESTA DECLARADA CORRECTAMENTE [#,%]");
+
         /*Expresiones logicas*/
-        
-        gramatica.loopForFunExecUntilChangeNotDetected(()->{
+        gramatica.loopForFunExecUntilChangeNotDetected(() -> {
             gramatica.group("EXPRESION_LOG", "(FUNCIONES_COMP | EXPRESION_LOG | EXP_REL) (Op_Logico (FUNCIONES_COMP | EXPRESION_LOG | EXP_REL))+");
             gramatica.group("EXPRESION_LOG", "Parentesis_a ( EXPRESION_LOG | FUNCIONES_COMP | EXP_REL) Parentesis_c");
         });
-        
+
         //ELIMINACION DE OPERADORES LOGICOS******
         gramatica.initialLineColumn();
-        gramatica.delete("Op_Logico",9,"ERROR SINTACTICO {} LA OPERACION LOGICA NO ES VALIDA [#,%] ");
-        
-        
+        gramatica.delete("Op_Logico", 9, "ERROR SINTACTICO {} LA OPERACION LOGICA NO ES VALIDA [#,%] ");
+
         /*Agrupacion de expresiones logicas como valor y parametro*/
-        gramatica.group("VALOR","EXPRESION_LOG");
-        gramatica.group("PARAMETROS", "VALOR (Coma VALOR)*" );
-        
-        /**ESTRUCTURAS DE CONTROL**/
-        
-        gramatica.group("CICLOS", " ( Condition | For | While ) "); 
+        gramatica.group("VALOR", "EXPRESION_LOG");
+        gramatica.group("PARAMETROS", "VALOR (Coma VALOR)*");
+
+        /**
+         * ESTRUCTURAS DE CONTROL*
+         */
+        gramatica.group("CICLOS", " ( Condition | For | While ) ");
         gramatica.group("CICLOS_COMP", "CICLOS  (VALOR | PARAMETROS)  ");
         gramatica.group("CICLOS_COMP", "CICLOS Parentesis_a (VALOR | PARAMETROS) Parentesis_c ");
-        
-        gramatica.delete("CICLOS",10,"ERROR SINTACTICO {} EL CICLO NO ESTA BIEN DECLARADO [#,%]");
-       
-        gramatica.delete(new String[]{"Parentesis_a","Parentesis_a"},17,"ERROR SINTACTICO {}: Los parentesis  no correspone a ninguna asignacion [#,%]");
-        
-        /** PUNTOS Y COMAS **/
+
+        gramatica.delete("CICLOS", 10, "ERROR SINTACTICO {} EL CICLO NO ESTA BIEN DECLARADO [#,%]");
+
+        gramatica.delete(new String[]{"Parentesis_a", "Parentesis_a"}, 17, "ERROR SINTACTICO {}: Los parentesis  no correspone a ninguna asignacion [#,%]");
+
+        /**
+         * PUNTOS Y COMAS *
+         */
         gramatica.finalLineColumn();
-        gramatica.group("VARIABLE_PC", "VARIABLE Punto_Coma",true);
-        gramatica.group("VARIABLE_PC", "VARIABLE ",true,11,"ERROR SINTACTICO {} FALTA PUNTO Y COMA [#,%]");
-        
-        
-        
-        gramatica.group("FUNCIONES_COMP_PC", "FUNCIONES_COMP Punto_Coma",true);
-        gramatica.group("FUNCIONES_COMP_PC", "FUNCIONES_COMP ",true,12,"ERROR SINTACTICO {} FALTA PUNTO Y COMA [#,%]");
-        
+        gramatica.group("VARIABLE_PC", "VARIABLE Punto_Coma", true);
+        gramatica.group("VARIABLE_PC", "VARIABLE ", true, 11, "ERROR SINTACTICO {} FALTA PUNTO Y COMA [#,%]");
+
+        gramatica.group("FUNCIONES_COMP_PC", "FUNCIONES_COMP Punto_Coma", true);
+        gramatica.group("FUNCIONES_COMP_PC", "FUNCIONES_COMP ", true, 12, "ERROR SINTACTICO {} FALTA PUNTO Y COMA [#,%]");
+
         gramatica.initialLineColumn();
-        gramatica.delete("Punto_Coma",13,"ERROR SINTACTICO {} PUNTO Y COMA NO ESTA AL FINAL DE UNA SENTENCIA VALIDA [#,%]");
-        
-        
-        /**BLOQUES DE CODIGO**/
-        
+        gramatica.delete("Punto_Coma", 13, "ERROR SINTACTICO {} PUNTO Y COMA NO ESTA AL FINAL DE UNA SENTENCIA VALIDA [#,%]");
+
+        /**
+         * BLOQUES DE CODIGO*
+         */
         gramatica.group("SENTENCIAS", "(FUNCIONES_COMP_PC | VARIABLE_PC) +");
-        
-        gramatica.loopForFunExecUntilChangeNotDetected(()->{
-            gramatica.group("CICLOS_COMP_LLAVES", "CICLOS_COMP Llave_a (SENTENCIAS)? Llave_c",true);
-            gramatica.group("SENTENCIAS", "(SENTENCIAS | CICLOS_COMP_LLAVES )+",true);
+
+        gramatica.loopForFunExecUntilChangeNotDetected(() -> {
+            gramatica.group("CICLOS_COMP_LLAVES", "CICLOS_COMP Llave_a (SENTENCIAS)? Llave_c", true);
+            gramatica.group("SENTENCIAS", "(SENTENCIAS | CICLOS_COMP_LLAVES )+", true);
         });
-        
-        /**BLOQUES DE CODIGO INCOMPLETOS**/
-        gramatica.loopForFunExecUntilChangeNotDetected(()->{
-            gramatica.group("CICLOS_COMP_LLAVES", "CICLOS_COMP  (SENTENCIAS)? Llave_c",true,14,
+
+        /**
+         * BLOQUES DE CODIGO INCOMPLETOS*
+         */
+        gramatica.loopForFunExecUntilChangeNotDetected(() -> {
+            gramatica.group("CICLOS_COMP_LLAVES", "CICLOS_COMP  (SENTENCIAS)? Llave_c", true, 14,
                     "ERROR SINTACTICO {}: Falta la llave de apertura del bloque ' [] ' [#,%]");
             gramatica.finalLineColumn();
-            
-            gramatica.group("CICLOS_COMP_LLAVES", "CICLOS_COMP Llave_a (SENTENCIAS)? ",true,15,
+
+            gramatica.group("CICLOS_COMP_LLAVES", "CICLOS_COMP Llave_a (SENTENCIAS)? ", true, 15,
                     "ERROR SINTACTICO {}: Falta la llave de cierre del bloque ' [] ' [#,%]");
-            gramatica.group("SENTENCIAS", "(SENTENCIAS | CICLOS_COMP_LLAVES )",true);
-            
-             });
-        
-        
-        /**ESTRUCTURA PRINCIPAL DEL ARCHIVO**/
-        /****************ARREGLAR***********************/
-            
-            
-            gramatica.group("BLOQUE", "(SENTENCIAS | CICLOS_COMP_LLAVES)+",true);
+            gramatica.group("SENTENCIAS", "(SENTENCIAS | CICLOS_COMP_LLAVES )", true);
 
+        });
 
-            gramatica.group("MAIN", "Atlas Begin Llave_a (BLOQUE)* Llave_c",true);
-            /**Preevenimos por si agregan llaves sin bloque de codigo**/
-            gramatica.delete(new String[]{"Llave_a","Llave_c"},16,"ERROR SINTACTICO {}: La/s llave [] no correspone a ningun bloque [#,%]");
-       
-            
-            //gramatica.delete("SENTENCIAS",17,"ERROR SINTACTICO {}: NO ESTAS DENTRO DE ATLAS [#,%]");
-        
-            /****************ARREGLAR***********************/
-            /**MOSTRAR GRAMATICAS**/
-       //gramatica.show();
+        /**
+         * ESTRUCTURA PRINCIPAL DEL ARCHIVO*
+         */
+        /**
+         * **************ARREGLAR**********************
+         */
+        gramatica.group("BLOQUE", "(SENTENCIAS | CICLOS_COMP_LLAVES)+", true);
+
+        gramatica.group("MAIN", "Atlas Begin Llave_a (BLOQUE)* Llave_c", true);
+        /**
+         * Preevenimos por si agregan llaves sin bloque de codigo*
+         */
+        gramatica.delete(new String[]{"Llave_a", "Llave_c"}, 16, "ERROR SINTACTICO {}: La/s llave [] no correspone a ningun bloque [#,%]");
+
+        //gramatica.delete("SENTENCIAS",17,"ERROR SINTACTICO {}: NO ESTAS DENTRO DE ATLAS [#,%]");
+        /**
+         * **************ARREGLAR**********************
+         */
+        /**
+         * MOSTRAR GRAMATICAS*
+         */
+        gramatica.show();
     }
 
     private void semanticAnalysis() {
-        HashMap< String,String> identDataType = new HashMap<>();
-        identDataType.put("int","Numero");
-        identDataType.put("str","Texto");
-        identDataType.put("logic","Op_Booleano");
-        identDataType.put("float","Numero_Decimal");
+        HashMap< String, String> identDataType = new HashMap<>();
+        identDataType.put("int", "Numero");
+        identDataType.put("str", "Texto");
+        identDataType.put("logic", "Op_Booleano");
+        identDataType.put("float", "Numero_Decimal");
         identDataType.put("char", "Caracter");
-        for(Production id:identProd){
+        for (Production id : identProd) {
+
             
-            //System.out.println(identDataType);
-            if(id.getName().equals("FUNCIONES_COMP")){
-                 //**    NOTA: BORRAR ESTA PARTE Y REACOMODAR     **//    
-            }else if(id.getSizeTokens()==6){ // Verifica por numero de caracteres si es una declaracion de variable
-                
-                /**Recupera el tipo de token de la declaracion, 
-                 * lo busca si se encuentra en el mapa de tipos
-                 * y compara el tipo de dato de la asignacion para 
-                 * ver si encaja con el valor del mapa
+            if (id.getName().equals("FUNCIONES_COMP")) {
+                //**    NOTA: BORRAR ESTA PARTE Y REACOMODAR     **//    
+            } else if (id.getSizeTokens() == 6) { // Verifica por numero de caracteres si es una declaracion de variable
+
+                /**
+                 * Recupera el tipo de token de la declaracion, lo busca si se
+                 * encuentra en el mapa de tipos y compara el tipo de dato de la
+                 * asignacion para ver si encaja con el valor del mapa
                  */
-                
-                if(!identDataType.get(id.lexemeRank(3)).equals(id.lexicalCompRank(-1))){
-                errors.add(new ErrorLSSL(1, "ERROR SEMANTICO {}: "
-                        + "VALOR NO COMPATIBLE CON EL TIPO DE DATO [#, %]", id,true));
-                }else{
+                if (!identDataType.get(id.lexemeRank(3)).equals(id.lexicalCompRank(-1))) {
+                    errors.add(new ErrorLSSL(1, "ERROR SEMANTICO {}: "
+                            + "VALOR NO COMPATIBLE CON EL TIPO DE DATO [#, %]", id, true));
+                } else {
                     identificadores.put(id.lexemeRank(0), id.lexemeRank(-1));
                 }
             }
-            
-        }
-        /** Analisis Semantico de las Funciones **/
-        HashMap <String,ArrayList> identFun = new HashMap<>();
-        identFun.put("exit", parametrosFun("Op_Booleano"));
-        identFun.put("admit", parametrosFun("Op_Booleano","Coma","identificador","Coma","identificador")); 
-               
-        //identFun.forEach((k,v)-> System.out.println(v.size()));
 
-        for(Production id: identProdFun){
-            String keyHash = id.lexemeRank(0);
-            if ( identFun.get(keyHash) == null ) { //Buscamos en el mapa de funciones si existe la funcion que tenemos en el codigo
-                errors.add(new ErrorLSSL(2, "ERROR SEMANTICO {}: "
-                        + "Funcion no es valida en el lenguaje [#, %]", id,true));
-            }else{//existe la regla semantica para la funcion
-                if(identFun.get(keyHash).size() != (id.getSizeTokens()-3)){ //Cantidad de parametros correctos
-                        errors.add(new ErrorLSSL(3, "ERROR SEMANTICO {}: "
-                        + "Cantidad de parametros no admitidos (Mas o menos de los necesarios) [#, %]", id,true));
-                }
-                int i = 2;
-                for(Object TokenID: identFun.get(keyHash)){ // recorrer tokens  verificar que encajan con la clave del HashMap
-                    
-                    if(!TokenID.equals(id.lexicalCompRank(i))){ //Verificar si valor es valido para la funcion
-                        errors.add(new ErrorLSSL(4, "ERROR SEMANTICO {}: "
-                        + "Valor en la funcion no corresponde [#, %]", id,true));
-                        
-                    }else if(id.lexicalCompRank(i).equals("identificador") && (identificadores.get(id.lexemeRank(i))) == null ){
-                        errors.add(new ErrorLSSL(5, "ERROR SEMANTICO {}: "
-                        + "Identificador no ha sido declarado [#, %]", id,true));
-                    }//Bloque Else IF detecta si el identificador ya fue declarado
-                    i++;
-                }
-            }//bloque de codigo para determinar si la semantica de la funcion esta bien
-//            for (int i = 2; i < id.getSizeTokens(); i++) {
-//                System.out.println(id.tokenRank(i));
-//                
-//            }
         }
-        
-    }
-    
-    public ArrayList<String> parametrosFun(String ... args){
+        /**
+         * Analisis Semantico de las Funciones *
+         */
+        HashMap<String, ArrayList> identFun = new HashMap<>();
+        identFun.put("exit", parametrosFun("Op_Booleano"));
+        identFun.put("admit", parametrosFun("Op_Booleano", "Coma", "identificador", "Coma", "identificador"));
+        identFun.put("ventilate", parametrosFun("Op_Booleano", "Coma", "Op_Booleano", "Coma", "identificador"));
+        identFun.put("emptyRoom", parametrosFun("Op_Booleano", "Coma", "identificador", "Coma", "Op_Booleano", "Coma", "Op_Booleano"));
+        identFun.put("dispense", parametrosFun("identificador"));
+        identFun.put("distance", parametrosFun("identificador"));
+        identFun.put("deviceControl", parametrosFun("identificador", "Coma", "Op_Booleano", "Coma", "identificador"));
+        identFun.put("driverLights", parametrosFun("identificador", "Coma", "identificador"));
+        identFun.put("openDoor", parametrosFun("identificador", "Coma", "identificador"));
+        identFun.put("registerA", parametrosFun("identificador"));
+
+        for (Production id : identProdFun) {//RECORRER FUNCIONES EN EL ARREGLO FOR PRINCIPAL
+            String keyHash = id.lexemeRank(0);
+            
+            if (identFun.get(keyHash) == null) { //Buscamos en el mapa de funciones si existe la funcion que tenemos en el codigo
+                errors.add(new ErrorLSSL(2, "ERROR SEMANTICO {}: "
+                        + "Funcion no es valida en el lenguaje [#, %]", id, true));
+            } else {//existe la regla semantica para la funcion
+                if (identFun.get(keyHash).size() != (id.getSizeTokens() - 3)) { //Cantidad de parametros incorrectos
+                    errors.add(new ErrorLSSL(3, "ERROR SEMANTICO {}: "
+                            + "Cantidad de parametros no admitidos (Mas o menos de los necesarios) [#, %] "
+                            + "Estructura Valida" + identFun.get(keyHash), id, true));
+                } else { // Cantidad de parametros correctos
+                    int i = 2;
+                    for (Object TokenID : identFun.get(keyHash)) { // recorrer tokens  verificar que encajan con la clave del HashMap
+
+                        if (!TokenID.equals(id.lexicalCompRank(i))) { //Verificar si valor es valido para la funcion
+                            errors.add(new ErrorLSSL(4, "ERROR SEMANTICO {}: "
+                                    + "Valor en la funcion no corresponde [#, %]"
+                                    + "Estructura Valida" + identFun.get(keyHash), id, true));
+                                    break;
+                        } else if (id.lexicalCompRank(i).equals("identificador") && (identificadores.get(id.lexemeRank(i))) == null) {
+                            errors.add(new ErrorLSSL(5, "ERROR SEMANTICO {}: "
+                                    + "Identificador no ha sido declarado [#, %]", id, true));
+                            break;
+                        }//Bloque Else IF detecta si el identificador ya fue declarado
+                        i++;
+                    }// ** FOR recorrer tokens  verificar que encajan con la clave del HashMap
+                }// Cantidad de parametros correctos
+
+            }//bloque de codigo ELSE para determinar si la semantica de la funcion esta bien cuando si esta en el mapa
+            //existe la regla semantica para la funcion 
+
+        }//RECORRER FUNCIONES EN EL ARREGLO FOR PRINCIPAL
+
+    }//Funcion de analisis Semantico
+
+    public ArrayList<String> parametrosFun(String... args) {
         ArrayList<String> temp = new ArrayList<String>();
-        for(String arg:args){
+        for (String arg : args) {
             temp.add(arg);
         }
         return temp;
-        
+
     }// FUNCION PARA AGREGAR PARAMETROS DIFETENTES DE CADA FUNCION
 
     private void colorAnalysis() {
