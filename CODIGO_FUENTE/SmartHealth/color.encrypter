@@ -1,7 +1,19 @@
-Atlas begin {
-k Declare As int = 5;
-a Declare As float = 2.5;
-exit (true);
-admit(true,a,k);
-//emptyRoom (true, k , false,true); // no la insertamos en el analisis semantico a proposito
+Atlas begin{
+condition (A > B){
+ 	condition(C<B){
+		v Declare As float = 2.5;
+	}
+      }//primera condicion
+lop Declare As str = "s";
+a Declare As int  = 2;
+exit(true);
+ventilate(true,false,a);
+
 }
+
+///**
+//Funciones disponibles
+//ventilate , admit, emptyRoom, dispense
+// distance, deviceControl, driverLights, openDoor
+// registerA ,exit
+//**/

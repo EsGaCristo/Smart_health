@@ -1,0 +1,23 @@
+/*
+        gramatica.group("F_Ventilate", "Ventilate  Parentesis_a  BOOL  Coma  BOOL Coma VALOR Parentesis_c",true);
+        
+        gramatica.group("F_Admit", "admit Parentesis_a BOOL Coma VALOR Coma VALOR Parentesis_c ",true);
+        
+        gramatica.group("F_EmptyRoom", "EmptyRoom Parentesis_a BOOL Coma VALOR Coma BOOL Coma BOOL Parentesis_c",true);
+        
+        gramatica.group("F_Dispense", "Dispense Parentesis_a VALOR Parentesis_c",true);
+        
+        gramatica.group("F_Distance", "Distance Parentesis_a VALOR Parentesis_c",true);
+        
+        gramatica.group("F_DeviceControl", "DeviceControl Parentesis_a VALOR Coma BOOL Coma VALOR Parentesis_c",true);
+        
+        gramatica.group("F_DriverLights", "DriverLights Parentesis_a VALOR Coma VALOR Parentesis_c",true);
+        
+        gramatica.group("F_OpenDoor", "OpenDoor Parentesis_a VALOR Coma VALOR Parentesis_c",true);
+        
+        gramatica.group("F_RegisterA", "RegisterA Parentesis_a VALOR Parentesis_c",true);
+        
+        gramatica.group("F_Exit", "Exit Parentesis_a BOOL Parentesis_c",true);
+        
+        */
+        
