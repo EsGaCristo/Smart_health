@@ -25,13 +25,11 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
+import java.util.function.BiConsumer;
 import javax.swing.JOptionPane;
 import javax.swing.Timer;
 
-/**
- *
- * @author yisus
- */
 public class Compilador extends javax.swing.JFrame {
 
     private String title;
@@ -42,6 +40,7 @@ public class Compilador extends javax.swing.JFrame {
     private Timer timerKeyReleased;
     private ArrayList<Production> identProd;
     private ArrayList<Production> identProdFun;
+    private ArrayList<Production> identProdOp;
     private HashMap<String, String> identificadores;
     private boolean codeHasBeenCompiled = false;
 
@@ -427,13 +426,26 @@ public class Compilador extends javax.swing.JFrame {
 
         //Aqui empezamos con las producciones
         /*agrupacion de valores*/
-        gramatica.group("VALOR", "( Numero | Numero_Decimal | Texto | Caracter)", true);
-        gramatica.group("TIPO_DATO", "( Int | Float | Logic | str | Char)", true);
+        gramatica.group("VALOR", "( Numero | Numero_Decimal | Texto | Caracter )", true);
+        gramatica.group("TIPO_DATO", "( Int | Float | Logic | str | Char )", true);
+        //gramatica.group("OPAR", "( VALOR | identificador )", true);
+
+        /**
+         * Operaciones Aritmeticas*
+         */
+        gramatica.loopForFunExecUntilChangeNotDetected(() -> {
+            gramatica.group("OpAritmetico", "( VALOR | identificador ) Aritmetico ( VALOR | identificador ) ", true);
+            gramatica.group("OpAritmetico", "(OpAritmetico | VALOR | identificador )+ Aritmetico (OpAritmetico | VALOR | identificador )+ ", true,identProdOp);
+        });
 
         //Agrupacion de variables String
         //gramatica.group("VARIABLE","identificador Declare As str Asignacion Texto ",true);
         // Agrupacion de asignacion de variables
-        gramatica.group("VARIABLE", "identificador Declare As TIPO_DATO Asignacion VALOR ", true, identProd);
+        gramatica.group("VARIABLE", "(identificador Declare As TIPO_DATO Asignacion (VALOR | OpAritmetico) ) |  "
+                + "(identificador Asignacion (VALOR | OpAritmetico) ) | (identificador Declare As TIPO_DATO)", identProd);
+        // gramatica.group("VARIABLE", "identificador Asignacion VALOR", identProd);
+        // gramatica.group("VARIABLE", "identificador Declare As TIPO_DATO ", identProd);
+
         gramatica.group("VARIABLE", "identificador Declare As TIPO_DATO Asignacion  ", true, 2, " ERROR SINTACTICO {}: FALTA VALOR [#, %]");
 
         gramatica.finalLineColumn();
@@ -472,7 +484,7 @@ public class Compilador extends javax.swing.JFrame {
         gramatica.finalLineColumn();
         gramatica.group("FUNCIONES_COMP", "FUNCIONES  ( VALOR | PARAMETROS )* Parentesis_c", true, 7, ""
                 + "ERROR SINTACTICO {}: FALTO EL PARENTESIS DE LA FUNCION [#,%]");
-        
+
         gramatica.group("FUNCIONES_COMP", "FUNCIONES  Parentesis_a Parentesis_c", true, 20, ""
                 + "ERROR SINTACTICO {}: LAS FUNCIONES DEBEN LLEVAR PARAMETROS [#,%]");
         gramatica.initialLineColumn();
@@ -514,6 +526,9 @@ public class Compilador extends javax.swing.JFrame {
         gramatica.group("VARIABLE_PC", "VARIABLE Punto_Coma", true);
         gramatica.group("VARIABLE_PC", "VARIABLE ", true, 11, "ERROR SINTACTICO {} FALTA PUNTO Y COMA [#,%]");
 
+        gramatica.group("OpAritmetico_PC", "OpAritmetico Punto_Coma", true);
+        gramatica.group("OpAritmetico_PC", "OpAritmetico ", true, 20, "ERROR SINTACTICO {} FALTA PUNTO Y COMA [#,%]");
+
         gramatica.group("FUNCIONES_COMP_PC", "FUNCIONES_COMP Punto_Coma", true);
         gramatica.group("FUNCIONES_COMP_PC", "FUNCIONES_COMP ", true, 12, "ERROR SINTACTICO {} FALTA PUNTO Y COMA [#,%]");
 
@@ -523,7 +538,7 @@ public class Compilador extends javax.swing.JFrame {
         /**
          * BLOQUES DE CODIGO*
          */
-        gramatica.group("SENTENCIAS", "(FUNCIONES_COMP_PC | VARIABLE_PC) +");
+        gramatica.group("SENTENCIAS", "(FUNCIONES_COMP_PC | VARIABLE_PC | OpAritmetico_PC) +");
 
         gramatica.loopForFunExecUntilChangeNotDetected(() -> {
             gramatica.group("CICLOS_COMP_LLAVES", "CICLOS_COMP Llave_a (SENTENCIAS)? Llave_c", true);
@@ -569,6 +584,14 @@ public class Compilador extends javax.swing.JFrame {
     }
 
     private void semanticAnalysis() {
+        /** OPERACIONES ARITMETICAS
+         * 
+         **/
+        
+        
+        /** ASIGNACION DE VARIABLES
+         * 
+         **/
         HashMap< String, String> identDataType = new HashMap<>();
         identDataType.put("int", "Numero");
         identDataType.put("str", "Texto");
@@ -576,26 +599,37 @@ public class Compilador extends javax.swing.JFrame {
         identDataType.put("float", "Numero_Decimal");
         identDataType.put("char", "Caracter");
         for (Production id : identProd) {
-
-            
-            if (id.getName().equals("FUNCIONES_COMP")) {
-                //**    NOTA: BORRAR ESTA PARTE Y REACOMODAR     **//    
-            } else if (id.getSizeTokens() == 6) { // Verifica por numero de caracteres si es una declaracion de variable
-
+            if (id.getName().equals("VARIABLE")) {
                 /**
                  * Recupera el tipo de token de la declaracion, lo busca si se
                  * encuentra en el mapa de tipos y compara el tipo de dato de la
                  * asignacion para ver si encaja con el valor del mapa
                  */
-                if (!identDataType.get(id.lexemeRank(3)).equals(id.lexicalCompRank(-1))) {
-                    errors.add(new ErrorLSSL(1, "ERROR SEMANTICO {}: "
-                            + "VALOR NO COMPATIBLE CON EL TIPO DE DATO [#, %]", id, true));
-                } else {
+                if (id.getSizeTokens() == 6) {
+                    if (!identDataType.get(id.lexemeRank(3)).equals(id.lexicalCompRank(-1))) {
+                        errors.add(new ErrorLSSL(1, "ERROR SEMANTICO {}: "
+                                + "VALOR NO COMPATIBLE CON EL TIPO DE DATO [#, %]", id, true));
+                    } else {
+                        identificadores.put(id.lexemeRank(0), id.lexemeRank(-1));
+                    }
+                } else if (id.getSizeTokens() == 4) {
+                    identificadores.put(id.lexemeRank(0), id.lexemeRank(-1));
+                } else if (id.getSizeTokens() == 3) {
+                    if (!identificadores.containsKey(id.lexemeRank(0))) {
+                        errors.add(new ErrorLSSL(5, "ERROR SEMANTICO {}: "
+                                + "VARIABLE NO DECLARADA ANTES DE ASIGNACION [#, %]", id, true));
+                        break;
+                    }
+                    if (!identDataType.get(identificadores.get(id.lexemeRank(0))).equals(id.lexicalCompRank(-1))) {
+                        errors.add(new ErrorLSSL(1, "ERROR SEMANTICO {}: "
+                                + "VALOR NO COMPATIBLE CON EL TIPO DE DATO [#, %]", id, true));
+                        break;
+                    }
                     identificadores.put(id.lexemeRank(0), id.lexemeRank(-1));
                 }
-            }
 
-        }
+            }
+        }// Recorrer asignacion de variables
         /**
          * Analisis Semantico de las Funciones *
          */
@@ -613,7 +647,7 @@ public class Compilador extends javax.swing.JFrame {
 
         for (Production id : identProdFun) {//RECORRER FUNCIONES EN EL ARREGLO FOR PRINCIPAL
             String keyHash = id.lexemeRank(0);
-            
+
             if (identFun.get(keyHash) == null) { //Buscamos en el mapa de funciones si existe la funcion que tenemos en el codigo
                 errors.add(new ErrorLSSL(2, "ERROR SEMANTICO {}: "
                         + "Funcion no es valida en el lenguaje [#, %]", id, true));
@@ -630,7 +664,7 @@ public class Compilador extends javax.swing.JFrame {
                             errors.add(new ErrorLSSL(4, "ERROR SEMANTICO {}: "
                                     + "Valor en la funcion no corresponde [#, %]"
                                     + "Estructura Valida" + identFun.get(keyHash), id, true));
-                                    break;
+                            break;
                         } else if (id.lexicalCompRank(i).equals("identificador") && (identificadores.get(id.lexemeRank(i))) == null) {
                             errors.add(new ErrorLSSL(5, "ERROR SEMANTICO {}: "
                                     + "Identificador no ha sido declarado [#, %]", id, true));
