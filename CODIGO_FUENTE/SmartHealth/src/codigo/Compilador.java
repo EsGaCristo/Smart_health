@@ -77,6 +77,7 @@ public class Compilador extends javax.swing.JFrame {
         textsColor = new ArrayList<>();
         identProd = new ArrayList<>();
         identProdFun = new ArrayList<>();
+        identProdOp = new ArrayList<>();
         identificadores = new HashMap<>();
         Functions.setAutocompleterJTextComponent(new String[]{}, jtpCode, () -> {
             timerKeyReleased.restart();
@@ -433,18 +434,20 @@ public class Compilador extends javax.swing.JFrame {
         /**
          * Operaciones Aritmeticas*
          */
+        gramatica.finalLineColumn();
         gramatica.loopForFunExecUntilChangeNotDetected(() -> {
-            gramatica.group("OpAritmetico", "( VALOR | identificador ) Aritmetico ( VALOR | identificador ) ", true);
-            gramatica.group("OpAritmetico", "(OpAritmetico | VALOR | identificador )+ Aritmetico (OpAritmetico | VALOR | identificador )+ ", true,identProdOp);
+            //gramatica.group("OpAritmetico", "( VALOR | identificador ) Aritmetico ( VALOR | identificador ) ", true);
+            gramatica.group("OpAritmetico", "((OpAritmetico | VALOR | identificador ) Aritmetico ( OpAritmetico | VALOR | identificador ))+ ", true);
         });
-
+        gramatica.group("OpAritmetico", "OpAritmetico", true, identProdOp);
+        gramatica.initialLineColumn();
+        
         //Agrupacion de variables String
         //gramatica.group("VARIABLE","identificador Declare As str Asignacion Texto ",true);
         // Agrupacion de asignacion de variables
         gramatica.group("VARIABLE", "(identificador Declare As TIPO_DATO Asignacion (VALOR | OpAritmetico) ) |  "
                 + "(identificador Asignacion (VALOR | OpAritmetico) ) | (identificador Declare As TIPO_DATO)", identProd);
-        // gramatica.group("VARIABLE", "identificador Asignacion VALOR", identProd);
-        // gramatica.group("VARIABLE", "identificador Declare As TIPO_DATO ", identProd);
+        
 
         gramatica.group("VARIABLE", "identificador Declare As TIPO_DATO Asignacion  ", true, 2, " ERROR SINTACTICO {}: FALTA VALOR [#, %]");
 
@@ -580,18 +583,16 @@ public class Compilador extends javax.swing.JFrame {
         /**
          * MOSTRAR GRAMATICAS*
          */
-        gramatica.show();
+        //gramatica.show();
     }
 
     private void semanticAnalysis() {
-        /** OPERACIONES ARITMETICAS
-         * 
-         **/
-        
-        
-        /** ASIGNACION DE VARIABLES
-         * 
-         **/
+
+        /**
+         * ASIGNACION DE VARIABLES
+         *
+         *
+         */
         HashMap< String, String> identDataType = new HashMap<>();
         identDataType.put("int", "Numero");
         identDataType.put("str", "Texto");
@@ -628,7 +629,8 @@ public class Compilador extends javax.swing.JFrame {
                     identificadores.put(id.lexemeRank(0), id.lexemeRank(-1));
                 }
 
-            }
+            }// saber si es una asignacion de variable
+
         }// Recorrer asignacion de variables
         /**
          * Analisis Semantico de las Funciones *
@@ -679,7 +681,45 @@ public class Compilador extends javax.swing.JFrame {
 
         }//RECORRER FUNCIONES EN EL ARREGLO FOR PRINCIPAL
 
+        /**
+         * OPERACIONES ARITMETICAS
+         *
+         *
+         */
+        Operaciones();
+
     }//Funcion de analisis Semantico
+
+    public void Operaciones() {
+        try { // try catch analisis de tipos en operaciones aritmeticas
+            for (Production id : identProdOp) { // Recorrer operaciones encontradas para revisar que no haya errores de tipos
+                int it = 0;
+                while (id.getSizeTokens() > it) {
+                    String str = id.lexicalCompRank(it);
+                    if (!(str.equals("Numero") || str.equals("Numero_Decimal") || str.equals("identificador") || str.equals("Aritmetico"))) {
+                        errors.add(new ErrorLSSL(6, "ERROR SEMANTICO {}: "
+                                + "VALOR NO ES OPERABLE  [#, %]", id, true));
+
+                    }
+                    if (str.equals("identificador") && !identificadores.containsKey(id.lexemeRank(it))) {
+                        errors.add(new ErrorLSSL(5, "ERROR SEMANTICO {}: "
+                                + "VARIABLE NO DECLARADA ANTES DE ASIGNACION [#, %] [id]", id, true));
+                        System.out.println("jijijja");
+                    }
+
+                    //System.out.println(str.equals("identificador") + " - " + id.lexemeRank(it));
+                    //System.out.println(production.lexicalCompRank(it));
+                    it++;
+                }// FIN DEL WHILE
+                System.out.println("_________________________");
+
+            }
+
+        } catch (Exception e) {
+            System.out.println(e);
+        }//Fin try catch analisis de tipos en operaciones aritmeticas
+
+    }
 
     public ArrayList<String> parametrosFun(String... args) {
         ArrayList<String> temp = new ArrayList<String>();
@@ -747,6 +787,7 @@ public class Compilador extends javax.swing.JFrame {
         errors.clear();
         identProd.clear();
         identProdFun.clear();
+        identProdOp.clear();
         identificadores.clear();
         codeHasBeenCompiled = false;
     }

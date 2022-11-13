@@ -1,19 +1,5 @@
 Atlas begin{
-condition (A > B){
- 	condition(C<B){
-		v Declare As float = 2.5;
-	}
-      }//primera condicion
-lop Declare As str = "s";
-a Declare As int  = 2;
-exit(true);
-ventilate(true,false,a);
-
+x Declare As int;
+x= 5;
+x+2+f;
 }
-
-///**
-//Funciones disponibles
-//ventilate , admit, emptyRoom, dispense
-// distance, deviceControl, driverLights, openDoor
-// registerA ,exit
-//**/
